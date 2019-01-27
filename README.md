@@ -18,3 +18,12 @@ add library dependency to app level build.gradle :
 
   implementation 'com.github.theprogrammermachine:KasperPulseFramework:v1.0'
 
+# Sample page built with this util :
+
+![alt text](https://pasteboard.co/HYq97bK.jpg)
+
+![alt text](https://pasteboard.co/HYq9sZ0.jpg)
+
+![alt text](https://pasteboard.co/HYq9C83.jpg)
+
+
