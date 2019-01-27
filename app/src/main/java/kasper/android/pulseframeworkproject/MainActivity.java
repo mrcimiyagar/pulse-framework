@@ -328,7 +328,7 @@ public class MainActivity extends AppCompatActivity {
             String json = new ObjectMapper().writeValueAsString(scrollerEl);
             Log.d("Pulse", json);
             PulseView pulseView = findViewById(R.id.pulseView);
-            pulseView.render(json);
+            pulseView.buildUi(json);
         } catch (Exception ex) {
             ex.printStackTrace();
         }

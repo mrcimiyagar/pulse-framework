@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import kasper.android.pulseframework.R;
-import kasper.android.pulseframework.engine.Renderer;
+import kasper.android.pulseframework.engine.UiEngine;
 import kasper.android.pulseframework.models.Elements;
 import kasper.android.pulseframework.utils.GraphicsHelper;
 
@@ -42,20 +42,20 @@ public class PulseView extends RelativeLayout {
         this.setFocusableInTouchMode(true);
     }
 
-    public void render(Elements.Element element) {
+    public void buildUi(Elements.Element element) {
         this.removeAllViews();
-        Renderer renderer = new Renderer(getContext(), getResources().getString(R.string.app_name));
-        View view = renderer.render(Elements.PanelEl.LayoutType.RELATIVE, element);
+        UiEngine uiEngine = new UiEngine(getContext(), getResources().getString(R.string.app_name));
+        View view = uiEngine.render(Elements.PanelEl.LayoutType.RELATIVE, element);
         this.addView(view);
     }
 
-    public void render(String json) {
+    public void buildUi(String json) {
         ObjectMapper objectMapper = new ObjectMapper()
                 .setSerializationInclusion(JsonInclude.Include.NON_NULL)
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         try {
             Elements.Element root = objectMapper.readValue(json, Elements.Element.class);
-            render(root);
+            buildUi(root);
         } catch (Exception ex) {
             ex.printStackTrace();
         }

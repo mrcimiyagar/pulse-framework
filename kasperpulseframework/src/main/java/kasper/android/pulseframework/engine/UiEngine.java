@@ -44,12 +44,12 @@ import kasper.android.pulseframework.models.Data;
 import kasper.android.pulseframework.models.Elements;
 import kasper.android.pulseframework.utils.GraphicsHelper;
 
-public class Renderer {
+public class UiEngine {
 
     private Context context;
     private String appName;
 
-    public Renderer(Context context, String appName) {
+    public UiEngine(Context context, String appName) {
         this.context = context;
         this.appName = appName;
     }
