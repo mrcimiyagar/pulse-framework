@@ -31,3 +31,12 @@ add library dependency to app level build.gradle :
 [![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org)
 
 - **[MIT license](http://opensource.org/licenses/mit-license.php)**
+
+# Used Libraries :
+
+  [Jackson](https://github.com/FasterXML/jackson)
+  [Glide](https://github.com/bumptech/glide)
+  [ProgressView](https://github.com/Moosphan/Material-ProgressView)
+  [ExoPlayer](https://github.com/google/ExoPlayer)
+  [WilliamChart](https://github.com/diogobernardino/WilliamChart)
+  
