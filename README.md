@@ -20,10 +20,8 @@ add library dependency to app level build.gradle :
 
 # Sample page built with this util :
 
-![image1](https://github.com/theprogrammermachine/KasperPulseFramework/blob/master/images/image1.jpg)
-
-![image2](https://github.com/theprogrammermachine/KasperPulseFramework/blob/master/images/image2.jpg)
-
-![image3](https://github.com/theprogrammermachine/KasperPulseFramework/blob/master/images/image3.jpg)
-
-
+<p float="left">
+  <img src="https://github.com/theprogrammermachine/KasperPulseFramework/blob/master/images/image1.jpg" alt="image1" width="300" height="500">
+  <img src="https://github.com/theprogrammermachine/KasperPulseFramework/blob/master/images/image2.jpg" alt="image2" width="300" height="500">
+  <img src="https://github.com/theprogrammermachine/KasperPulseFramework/blob/master/images/image3.jpg" alt="image3" width="300" height="500">
+</p>
