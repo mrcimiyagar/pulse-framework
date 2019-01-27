@@ -25,3 +25,9 @@ add library dependency to app level build.gradle :
   <img src="https://github.com/theprogrammermachine/KasperPulseFramework/blob/master/images/image2.jpg" alt="image2" width="300" height="500">
   <img src="https://github.com/theprogrammermachine/KasperPulseFramework/blob/master/images/image3.jpg" alt="image3" width="300" height="500">
 </p>
+
+## License
+
+[![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org)
+
+- **[MIT license](http://opensource.org/licenses/mit-license.php)**
