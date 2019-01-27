@@ -18,7 +18,7 @@ add library dependency to app level build.gradle :
 
   implementation 'com.github.theprogrammermachine:KasperPulseFramework:v1.0'
 
-# Sample page built with this util :
+# Sample page built with this utility :
 
 <p float="left">
   <img src="https://github.com/theprogrammermachine/KasperPulseFramework/blob/master/images/image1.jpg" alt="image1" width="300" height="500">
