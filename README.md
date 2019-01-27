@@ -1,7 +1,7 @@
 # KasperPulseFramework
 you can build android client ui by generating ui json string serverside and pushing it to client . this framework will get a json string as input and generate android ui elements tree . 
 
-# Setup :
+## Setup :
 
 add jitpack io to project level build.gradle allprojects -> respositories block :
 
@@ -18,7 +18,7 @@ add library dependency to app level build.gradle :
 
   implementation 'com.github.theprogrammermachine:KasperPulseFramework:v1.0'
 
-# Sample page built with this utility :
+## Sample page built with this utility :
 
 <p float="left">
   <img src="https://github.com/theprogrammermachine/KasperPulseFramework/blob/master/images/image1.jpg" alt="image1" width="300" height="500">
@@ -32,7 +32,7 @@ add library dependency to app level build.gradle :
 
 - **[MIT license](http://opensource.org/licenses/mit-license.php)**
 
-# Used Libraries :
+## Used Libraries :
 
   [Jackson](https://github.com/FasterXML/jackson)
   [Glide](https://github.com/bumptech/glide)
