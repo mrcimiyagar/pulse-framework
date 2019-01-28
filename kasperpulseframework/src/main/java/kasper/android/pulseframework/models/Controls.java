@@ -7,34 +7,39 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Elements {
+public class Controls {
 
     @JsonTypeInfo(
             use = JsonTypeInfo.Id.NAME,
             include = JsonTypeInfo.As.PROPERTY,
             property = "type")
     @JsonSubTypes({
-            @JsonSubTypes.Type(value = PanelEl.class, name = "PanelEl"),
-            @JsonSubTypes.Type(value = TextEl.class, name = "TextEl"),
-            @JsonSubTypes.Type(value = ImageEl.class, name = "ImageEl"),
-            @JsonSubTypes.Type(value = InputFieldEl.class, name = "InputFieldEl"),
-            @JsonSubTypes.Type(value = ButtonEl.class, name = "ButtonEl"),
-            @JsonSubTypes.Type(value = ProgressEl.class, name = "ProgressEl"),
-            @JsonSubTypes.Type(value = VideoPlayerEl.class, name = "VideoPlayerEl"),
-            @JsonSubTypes.Type(value = LineChartEl.class, name = "LineChartEl"),
-            @JsonSubTypes.Type(value = BarChartEl.class, name = "BarChartEl"),
-            @JsonSubTypes.Type(value = HorizontalBarChartEl.class, name = "HorizontalBarChartEl"),
-            @JsonSubTypes.Type(value = StackBarChartEl.class, name = "StackBarChartEl"),
-            @JsonSubTypes.Type(value = HorizontalStackBarChartEl.class, name = "HorizontalStackBarChartEl"),
-            @JsonSubTypes.Type(value = ScrollerEl.class, name = "ScrollerEl")
+            @JsonSubTypes.Type(value = PanelCtrl.class, name = "PanelCtrl"),
+            @JsonSubTypes.Type(value = TextCtrl.class, name = "TextCtrl"),
+            @JsonSubTypes.Type(value = ImageCtrl.class, name = "ImageCtrl"),
+            @JsonSubTypes.Type(value = InputFieldCtrl.class, name = "InputFieldCtrl"),
+            @JsonSubTypes.Type(value = ButtonCtrl.class, name = "ButtonCtrl"),
+            @JsonSubTypes.Type(value = ProgressCtrl.class, name = "ProgressCtrl"),
+            @JsonSubTypes.Type(value = VideoPlayerCtrl.class, name = "VideoPlayerCtrl"),
+            @JsonSubTypes.Type(value = LineChartCtrl.class, name = "LineChartCtrl"),
+            @JsonSubTypes.Type(value = BarChartCtrl.class, name = "BarChartCtrl"),
+            @JsonSubTypes.Type(value = HorizontalBarChartCtrl.class, name = "HorizontalBarChartCtrl"),
+            @JsonSubTypes.Type(value = StackBarChartCtrl.class, name = "StackBarChartCtrl"),
+            @JsonSubTypes.Type(value = HorizontalStackBarChartCtrl.class, name = "HorizontalStackBarChartCtrl"),
+            @JsonSubTypes.Type(value = ScrollerCtrl.class, name = "ScrollerCtrl"),
+            @JsonSubTypes.Type(value = CheckCtrl.class, name = "CheckCtrl"),
+            @JsonSubTypes.Type(value = OptionCtrl.class, name = "OptionCtrl"),
+            @JsonSubTypes.Type(value = DropDownCtrl.class, name = "DropDownCtrl"),
+            @JsonSubTypes.Type(value = RecyclerListCtrl.class, name = "RecyclerListCtrl")
     })
-    public static class Element {
+    public static class Control {
 
         public static int MATCH_PARENT = -1;
         public static int WRAP_CONTENT = -2;
 
         public static int CENTER = -1;
 
+        private String id;
         private int width;
         private int height;
         private int x;
@@ -55,6 +60,14 @@ public class Elements {
         private int paddingRight;
         private int paddingBottom;
         private int elevation;
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
 
         public int getWidth() {
             return width;
@@ -233,20 +246,19 @@ public class Elements {
         }
     }
 
-    public static class PanelEl extends Element {
+    public static class PanelCtrl extends Control {
 
         public enum LayoutType {
-            @JsonProperty("NONE") NONE,
             @JsonProperty("RELATIVE") RELATIVE,
             @JsonProperty("LINEAR_VERTICAL") LINEAR_VERTICAL,
             @JsonProperty("LINEAR_HORIZONTAL") LINEAR_HORIZONTAL,
         }
 
         private LayoutType layoutType;
-        private List<Element> elements;
+        private List<Control> controls;
 
-        public PanelEl() {
-            this.elements = new ArrayList<>();
+        public PanelCtrl() {
+            this.controls = new ArrayList<>();
         }
 
         public LayoutType getLayoutType() {
@@ -257,16 +269,16 @@ public class Elements {
             this.layoutType = layoutType;
         }
 
-        public List<Element> getElements() {
-            return elements;
+        public List<Control> getControls() {
+            return controls;
         }
 
-        public void setElements(List<Element> elements) {
-            this.elements = elements;
+        public void setControls(List<Control> controls) {
+            this.controls = controls;
         }
     }
 
-    public static class TextEl extends Element {
+    public static class TextCtrl extends Control {
 
         public enum GravityType {
             @JsonProperty("NONE") NONE,
@@ -317,7 +329,7 @@ public class Elements {
         }
     }
 
-    public static class ImageEl extends Element {
+    public static class ImageCtrl extends Control {
         public enum ImageScaleType {
             @JsonProperty("NONE") NONE,
             @JsonProperty("CENTER") CENTER,
@@ -349,12 +361,13 @@ public class Elements {
         }
     }
 
-    public static class InputFieldEl extends Element {
+    public static class InputFieldCtrl extends Control {
         private String hint;
         private String hintColor;
         private String textColor;
         private int textSize;
         private String lineColor;
+        private String text;
 
         public String getHint() {
             return hint;
@@ -395,9 +408,17 @@ public class Elements {
         public void setLineColor(String lineColor) {
             this.lineColor = lineColor;
         }
+
+        public String getText() {
+            return text;
+        }
+
+        public void setText(String text) {
+            this.text = text;
+        }
     }
 
-    public static class ButtonEl extends Element {
+    public static class ButtonCtrl extends Control {
         private String caption;
         private int captionSize;
         private String captionColor;
@@ -427,7 +448,7 @@ public class Elements {
         }
     }
 
-    public static class ProgressEl extends Element {
+    public static class ProgressCtrl extends Control {
         public enum ProgressType {
             @JsonProperty("HORIZONTAL") HORIZONTAL,
             @JsonProperty("CIRCULAR") CIRCULAR
@@ -587,8 +608,10 @@ public class Elements {
         }
     }
 
-    public static class VideoPlayerEl extends Element {
+    public static class VideoPlayerCtrl extends Control {
         private String videoUrl;
+        private int progress;
+        private boolean playing;
 
         public String getVideoUrl() {
             return videoUrl;
@@ -597,9 +620,25 @@ public class Elements {
         public void setVideoUrl(String videoUrl) {
             this.videoUrl = videoUrl;
         }
+
+        public int getProgress() {
+            return progress;
+        }
+
+        public void setProgress(int progress) {
+            this.progress = progress;
+        }
+
+        public boolean isPlaying() {
+            return playing;
+        }
+
+        public void setPlaying(boolean playing) {
+            this.playing = playing;
+        }
     }
 
-    public static class LineChartEl extends Element {
+    public static class LineChartCtrl extends Control {
         private List<Data.Point> points;
         private String dotsColor;
         private float dotsRadius;
@@ -746,7 +785,7 @@ public class Elements {
         }
     }
 
-    public static class BarChartEl extends Element {
+    public static class BarChartCtrl extends Control {
         private List<Data.Point> points;
         private int barSpacing;
         private int setSpacing;
@@ -830,7 +869,7 @@ public class Elements {
         }
     }
 
-    public static class HorizontalBarChartEl extends Element {
+    public static class HorizontalBarChartCtrl extends Control {
         private List<Data.Point> points;
         private int barSpacing;
         private int setSpacing;
@@ -914,7 +953,7 @@ public class Elements {
         }
     }
 
-    public static class StackBarChartEl extends Element {
+    public static class StackBarChartCtrl extends Control {
         private int barSpacing;
         private String barBackgroundColor;
         private int roundCorners;
@@ -989,7 +1028,7 @@ public class Elements {
         }
     }
 
-    public static class HorizontalStackBarChartEl extends Element {
+    public static class HorizontalStackBarChartCtrl extends Control {
         private int barSpacing;
         private String barBackgroundColor;
         private int roundCorners;
@@ -1064,15 +1103,191 @@ public class Elements {
         }
     }
 
-    public static class ScrollerEl extends Element {
-        private PanelEl panel;
+    public static class ScrollerCtrl extends Control {
+        private PanelCtrl panel;
+        private int position;
 
-        public PanelEl getPanel() {
+        public PanelCtrl getPanel() {
             return panel;
         }
 
-        public void setPanel(PanelEl panel) {
+        public void setPanel(PanelCtrl panel) {
             this.panel = panel;
+        }
+
+        public int getPosition() {
+            return position;
+        }
+
+        public void setPosition(int position) {
+            this.position = position;
+        }
+    }
+
+    public static class CheckCtrl extends Control {
+        private String caption;
+        private String captionColor;
+        private int captionSize;
+        private String tintColor;
+        private boolean checked;
+
+        public String getCaption() {
+            return caption;
+        }
+
+        public void setCaption(String caption) {
+            this.caption = caption;
+        }
+
+        public String getCaptionColor() {
+            return captionColor;
+        }
+
+        public void setCaptionColor(String captionColor) {
+            this.captionColor = captionColor;
+        }
+
+        public int getCaptionSize() {
+            return captionSize;
+        }
+
+        public void setCaptionSize(int captionSize) {
+            this.captionSize = captionSize;
+        }
+
+        public String getTintColor() {
+            return tintColor;
+        }
+
+        public void setTintColor(String tintColor) {
+            this.tintColor = tintColor;
+        }
+
+        public boolean isChecked() {
+            return checked;
+        }
+
+        public void setChecked(boolean checked) {
+            this.checked = checked;
+        }
+    }
+
+    public static class OptionCtrl extends Control {
+        private String caption;
+        private String captionColor;
+        private int captionSize;
+        private String tintColor;
+        private boolean checked;
+
+        public String getCaption() {
+            return caption;
+        }
+
+        public void setCaption(String caption) {
+            this.caption = caption;
+        }
+
+        public String getCaptionColor() {
+            return captionColor;
+        }
+
+        public void setCaptionColor(String captionColor) {
+            this.captionColor = captionColor;
+        }
+
+        public int getCaptionSize() {
+            return captionSize;
+        }
+
+        public void setCaptionSize(int captionSize) {
+            this.captionSize = captionSize;
+        }
+
+        public String getTintColor() {
+            return tintColor;
+        }
+
+        public void setTintColor(String tintColor) {
+            this.tintColor = tintColor;
+        }
+
+        public boolean isChecked() {
+            return checked;
+        }
+
+        public void setChecked(boolean checked) {
+            this.checked = checked;
+        }
+    }
+
+    public static class DropDownCtrl extends Control {
+        private List<Control> items;
+        private int selectedPos;
+
+        public List<Control> getItems() {
+            return items;
+        }
+
+        public void setItems(List<Control> items) {
+            this.items = items;
+        }
+
+        public int getSelectedPos() {
+            return selectedPos;
+        }
+
+        public void setSelectedPos(int selectedPos) {
+            this.selectedPos = selectedPos;
+        }
+    }
+
+    public static class RecyclerListCtrl extends Control {
+
+        public enum RecyclerLayoutType {
+            @JsonProperty("LINEAR") LINEAR,
+            @JsonProperty("GRID") GRID
+        }
+
+        public enum RecyclerOrientation {
+            @JsonProperty("VERTICAL") VERTICAL,
+            @JsonProperty("HORIZONTAL") HORIZONTAL
+        }
+
+        private List<Control> items;
+        private RecyclerLayoutType recyclerType;
+        private RecyclerOrientation orientation;
+        private int gridSpanCount;
+
+        public List<Control> getItems() {
+            return items;
+        }
+
+        public void setItems(List<Control> items) {
+            this.items = items;
+        }
+
+        public RecyclerLayoutType getRecyclerType() {
+            return recyclerType;
+        }
+
+        public void setRecyclerType(RecyclerLayoutType recyclerType) {
+            this.recyclerType = recyclerType;
+        }
+
+        public RecyclerOrientation getOrientation() {
+            return orientation;
+        }
+
+        public void setOrientation(RecyclerOrientation orientation) {
+            this.orientation = orientation;
+        }
+
+        public int getGridSpanCount() {
+            return gridSpanCount;
+        }
+
+        public void setGridSpanCount(int gridSpanCount) {
+            this.gridSpanCount = gridSpanCount;
         }
     }
 }

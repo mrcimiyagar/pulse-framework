@@ -1,20 +1,33 @@
 package kasper.android.pulseframework.engine;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
+import android.database.DataSetObserver;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.net.Uri;
-import android.support.v7.widget.CardView;
+
+import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
+import androidx.core.widget.CompoundButtonCompat;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Pair;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
+import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -26,23 +39,24 @@ import com.db.chart.view.HorizontalBarChartView;
 import com.db.chart.view.HorizontalStackBarChartView;
 import com.db.chart.view.LineChartView;
 import com.db.chart.view.StackBarChartView;
-import com.google.android.exoplayer2.ExoPlayerFactory;
-import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.source.ExtractorMediaSource;
-import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.ui.PlayerView;
-import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
-import com.google.android.exoplayer2.util.Util;
 import com.moos.library.CircleProgressView;
 import com.moos.library.HorizontalProgressView;
 
+import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import kasper.android.pulseframework.models.Data;
-import kasper.android.pulseframework.models.Elements;
+import kasper.android.pulseframework.models.Controls;
+import kasper.android.pulseframework.models.Tuple;
 import kasper.android.pulseframework.utils.GraphicsHelper;
+import tcking.github.com.giraffeplayer2.VideoView;
 
 public class UiEngine {
 
@@ -54,168 +68,226 @@ public class UiEngine {
         this.appName = appName;
     }
 
-    public View render(Elements.PanelEl.LayoutType parentLayoutType, Elements.Element element) {
+    public Tuple<View, List<Pair<Controls.Control, View>>
+            , Hashtable<String, Pair<Controls.Control, View>>> buildViewTree(
+            Controls.PanelCtrl.LayoutType parentLayoutType, Controls.Control control) {
         View result = null;
-        if (element instanceof Elements.PanelEl) {
-            Elements.PanelEl panelEl = (Elements.PanelEl) element;
-            if (panelEl.getLayoutType() == Elements.PanelEl.LayoutType.RELATIVE) {
+        Hashtable<String, Pair<Controls.Control, View>> idTable = new Hashtable<>();
+        List<Pair<Controls.Control, View>> statefulCtrls = new ArrayList<>();
+        if (control instanceof Controls.PanelCtrl) {
+            Controls.PanelCtrl panelCtrl = (Controls.PanelCtrl) control;
+            if (!isFieldEmpty(panelCtrl.getLayoutType())) {
+                if (panelCtrl.getLayoutType() == Controls.PanelCtrl.LayoutType.RELATIVE) {
+                    RelativeLayout relativeLayout = new RelativeLayout(context);
+                    for (Controls.Control el : panelCtrl.getControls()) {
+                        Tuple<View, List<Pair<Controls.Control, View>>
+                                , Hashtable<String, Pair<Controls.Control, View>>> pair =
+                                buildViewTree(panelCtrl.getLayoutType(), el);
+                        View childView = pair.getItem1();
+                        statefulCtrls.addAll(pair.getItem2());
+                        idTable.putAll(pair.getItem3());
+                        relativeLayout.addView(childView);
+                    }
+                    result = relativeLayout;
+                } else if (panelCtrl.getLayoutType() == Controls.PanelCtrl.LayoutType.LINEAR_VERTICAL) {
+                    LinearLayout linearLayout = new LinearLayout(context);
+                    linearLayout.setOrientation(LinearLayout.VERTICAL);
+                    for (Controls.Control el : panelCtrl.getControls()) {
+                        Tuple<View, List<Pair<Controls.Control, View>>
+                                , Hashtable<String, Pair<Controls.Control, View>>> pair =
+                                buildViewTree(panelCtrl.getLayoutType(), el);
+                        View childView = pair.getItem1();
+                        statefulCtrls.addAll(pair.getItem2());
+                        idTable.putAll(pair.getItem3());
+                        linearLayout.addView(childView);
+                    }
+                    result = linearLayout;
+                } else if (panelCtrl.getLayoutType() == Controls.PanelCtrl.LayoutType.LINEAR_HORIZONTAL) {
+                    LinearLayout linearLayout = new LinearLayout(context);
+                    linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+                    for (Controls.Control el : panelCtrl.getControls()) {
+                        Tuple<View, List<Pair<Controls.Control, View>>
+                                , Hashtable<String, Pair<Controls.Control, View>>> pair =
+                                buildViewTree(panelCtrl.getLayoutType(), el);
+                        View childView = pair.getItem1();
+                        statefulCtrls.addAll(pair.getItem2());
+                        idTable.putAll(pair.getItem3());
+                        linearLayout.addView(childView);
+                    }
+                    result = linearLayout;
+                }
+            } else {
                 RelativeLayout relativeLayout = new RelativeLayout(context);
-                for (Elements.Element el : panelEl.getElements()) {
-                    View childView = render(panelEl.getLayoutType(), el);
+                for (Controls.Control el : panelCtrl.getControls()) {
+                    Tuple<View, List<Pair<Controls.Control, View>>
+                            , Hashtable<String, Pair<Controls.Control, View>>> pair =
+                            buildViewTree(panelCtrl.getLayoutType(), el);
+                    View childView = pair.getItem1();
+                    statefulCtrls.addAll(pair.getItem2());
+                    idTable.putAll(pair.getItem3());
                     relativeLayout.addView(childView);
                 }
                 result = relativeLayout;
-            } else if (panelEl.getLayoutType() == Elements.PanelEl.LayoutType.LINEAR_VERTICAL) {
-                LinearLayout linearLayout = new LinearLayout(context);
-                linearLayout.setOrientation(LinearLayout.VERTICAL);
-                for (Elements.Element el : panelEl.getElements()) {
-                    View childView = render(panelEl.getLayoutType(), el);
-                    linearLayout.addView(childView);
-                }
-                result = linearLayout;
-            } else if (panelEl.getLayoutType() == Elements.PanelEl.LayoutType.LINEAR_HORIZONTAL) {
-                LinearLayout linearLayout = new LinearLayout(context);
-                linearLayout.setOrientation(LinearLayout.HORIZONTAL);
-                for (Elements.Element el : panelEl.getElements()) {
-                    View childView = render(panelEl.getLayoutType(), el);
-                    linearLayout.addView(childView);
-                }
-                result = linearLayout;
             }
-        } else if (element instanceof Elements.TextEl) {
-            Elements.TextEl textEl = (Elements.TextEl) element;
+        } else if (control instanceof Controls.TextCtrl) {
+            Controls.TextCtrl textCtrl = (Controls.TextCtrl) control;
             TextView textView = new TextView(context);
-            if (!isFieldEmpty(textEl.getText()))
-                textView.setText(textEl.getText());
-            if (!isFieldEmpty(textEl.getTextSize()))
-                textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, textEl.getTextSize());
-            if (!isFieldEmpty(textEl.getTextColor()))
-                textView.setTextColor(Color.parseColor(textEl.getTextColor()));
-            if (!isFieldEmpty(textEl.getGravityType())) {
-                if (textEl.getGravityType() == Elements.TextEl.GravityType.LEFT) {
+            if (!isFieldEmpty(textCtrl.getText()))
+                textView.setText(textCtrl.getText());
+            if (!isFieldEmpty(textCtrl.getTextSize()))
+                textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, textCtrl.getTextSize());
+            if (!isFieldEmpty(textCtrl.getTextColor()))
+                textView.setTextColor(Color.parseColor(textCtrl.getTextColor()));
+            if (!isFieldEmpty(textCtrl.getGravityType())) {
+                if (textCtrl.getGravityType() == Controls.TextCtrl.GravityType.LEFT) {
                     textView.setGravity(Gravity.LEFT);
-                } else if (textEl.getGravityType() == Elements.TextEl.GravityType.TOP) {
+                } else if (textCtrl.getGravityType() == Controls.TextCtrl.GravityType.TOP) {
                     textView.setGravity(Gravity.TOP);
-                } else if (textEl.getGravityType() == Elements.TextEl.GravityType.RIGHT) {
+                } else if (textCtrl.getGravityType() == Controls.TextCtrl.GravityType.RIGHT) {
                     textView.setGravity(Gravity.RIGHT);
-                } else if (textEl.getGravityType() == Elements.TextEl.GravityType.BOTTOM) {
+                } else if (textCtrl.getGravityType() == Controls.TextCtrl.GravityType.BOTTOM) {
                     textView.setGravity(Gravity.BOTTOM);
-                } else if (textEl.getGravityType() == Elements.TextEl.GravityType.CENTER_VERTICAL) {
+                } else if (textCtrl.getGravityType() == Controls.TextCtrl.GravityType.CENTER_VERTICAL) {
                     textView.setGravity(Gravity.CENTER_VERTICAL);
-                } else if (textEl.getGravityType() == Elements.TextEl.GravityType.CENTER_HORIZONTAL) {
+                } else if (textCtrl.getGravityType() == Controls.TextCtrl.GravityType.CENTER_HORIZONTAL) {
                     textView.setGravity(Gravity.CENTER_HORIZONTAL);
-                } else if (textEl.getGravityType() == Elements.TextEl.GravityType.CENTER) {
+                } else if (textCtrl.getGravityType() == Controls.TextCtrl.GravityType.CENTER) {
                     textView.setGravity(Gravity.CENTER);
                 }
             }
             result = textView;
-        } else if (element instanceof Elements.ImageEl) {
-            Elements.ImageEl imageEl = (Elements.ImageEl) element;
+        } else if (control instanceof Controls.ImageCtrl) {
+            Controls.ImageCtrl imageCtrl = (Controls.ImageCtrl) control;
             ImageView imageView = new ImageView(context);
-            if (!isFieldEmpty(imageEl.getScaleType()))
+            if (!isFieldEmpty(imageCtrl.getScaleType()))
                 imageView.setScaleType(ImageView.ScaleType.valueOf(
                         ImageView.ScaleType.class,
-                        imageEl.getScaleType().toString()));
-            if (!isFieldEmpty(imageEl.getImageUrl()))
+                        imageCtrl.getScaleType().toString()));
+            if (!isFieldEmpty(imageCtrl.getImageUrl()))
                 Glide.with(context)
-                        .load(imageEl.getImageUrl())
+                        .load(imageCtrl.getImageUrl())
                         .into(imageView);
             result = imageView;
-        } else if (element instanceof Elements.InputFieldEl) {
-            Elements.InputFieldEl inputFieldEl = (Elements.InputFieldEl) element;
+        } else if (control instanceof Controls.InputFieldCtrl) {
+            Controls.InputFieldCtrl inputFieldCtrl = (Controls.InputFieldCtrl) control;
             EditText editText = new EditText(context);
-            if (!isFieldEmpty(inputFieldEl.getHint()))
-                editText.setHint(inputFieldEl.getHint());
-            if (!isFieldEmpty(inputFieldEl.getHintColor()))
-                editText.setHintTextColor(Color.parseColor(inputFieldEl.getHintColor()));
+            if (!isFieldEmpty(inputFieldCtrl.getHint()))
+                editText.setHint(inputFieldCtrl.getHint());
+            if (!isFieldEmpty(inputFieldCtrl.getHintColor()))
+                editText.setHintTextColor(Color.parseColor(inputFieldCtrl.getHintColor()));
             else
                 editText.setHintTextColor(Color.GRAY);
-            if (!isFieldEmpty(inputFieldEl.getTextColor()))
-                editText.setTextColor(Color.parseColor(inputFieldEl.getTextColor()));
+            if (!isFieldEmpty(inputFieldCtrl.getTextColor()))
+                editText.setTextColor(Color.parseColor(inputFieldCtrl.getTextColor()));
             else
                 editText.setTextColor(Color.BLACK);
-            if (!isFieldEmpty(inputFieldEl.getTextSize()))
-                editText.setTextSize(TypedValue.COMPLEX_UNIT_SP, inputFieldEl.getTextSize());
+            if (!isFieldEmpty(inputFieldCtrl.getTextSize()))
+                editText.setTextSize(TypedValue.COMPLEX_UNIT_SP, inputFieldCtrl.getTextSize());
             else
                 editText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-            if (!isFieldEmpty(inputFieldEl.getLineColor()))
+            if (!isFieldEmpty(inputFieldCtrl.getLineColor()))
                 editText.getBackground().setColorFilter(
-                        Color.parseColor(inputFieldEl.getLineColor()), PorterDuff.Mode.SRC_ATOP);
+                        Color.parseColor(inputFieldCtrl.getLineColor()), PorterDuff.Mode.SRC_ATOP);
+            if (!isFieldEmpty(inputFieldCtrl.getText()))
+                editText.setText(inputFieldCtrl.getText());
+            editText.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                    inputFieldCtrl.setText(charSequence.toString());
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+
+                }
+            });
             result = editText;
-        } else if (element instanceof Elements.ButtonEl) {
-            Elements.ButtonEl buttonEl = (Elements.ButtonEl) element;
+        } else if (control instanceof Controls.ButtonCtrl) {
+            Controls.ButtonCtrl buttonCtrl = (Controls.ButtonCtrl) control;
             Button button = new Button(context);
-            if (!isFieldEmpty(buttonEl.getCaption()))
-                button.setText(buttonEl.getCaption());
-            if (!isFieldEmpty(buttonEl.getCaptionSize()))
-                button.setTextSize(TypedValue.COMPLEX_UNIT_SP, buttonEl.getCaptionSize());
+            if (!isFieldEmpty(buttonCtrl.getCaption()))
+                button.setText(buttonCtrl.getCaption());
+            if (!isFieldEmpty(buttonCtrl.getCaptionSize()))
+                button.setTextSize(TypedValue.COMPLEX_UNIT_SP, buttonCtrl.getCaptionSize());
             else
                 button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-            if (!isFieldEmpty(buttonEl.getCaptionColor()))
-                button.setTextColor(Color.parseColor(buttonEl.getCaptionColor()));
+            if (!isFieldEmpty(buttonCtrl.getCaptionColor()))
+                button.setTextColor(Color.parseColor(buttonCtrl.getCaptionColor()));
             else
                 button.setTextColor(Color.BLACK);
             result = button;
-        } else if (element instanceof Elements.ProgressEl) {
-            Elements.ProgressEl progressEl = (Elements.ProgressEl) element;
-            if (progressEl.getProgressType() == Elements.ProgressEl.ProgressType.CIRCULAR) {
+        } else if (control instanceof Controls.ProgressCtrl) {
+            Controls.ProgressCtrl progressCtrl = (Controls.ProgressCtrl) control;
+            if (progressCtrl.getProgressType() == Controls.ProgressCtrl.ProgressType.CIRCULAR) {
                 CircleProgressView circleProgressView = new CircleProgressView(context);
-                circleProgressView.setCircleBroken(progressEl.isCircleBroken());
-                circleProgressView.setTrackWidth(progressEl.getTrackWidth());
-                circleProgressView.setFillEnabled(progressEl.isFillEnabled());
-                if (!isFieldEmpty(progressEl.getProgressTextSize()))
-                    circleProgressView.setProgressTextSize(progressEl.getProgressTextSize());
-                if (!isFieldEmpty(progressEl.getProgressTextColor()))
+                circleProgressView.setCircleBroken(progressCtrl.isCircleBroken());
+                circleProgressView.setTrackWidth(progressCtrl.getTrackWidth());
+                circleProgressView.setFillEnabled(progressCtrl.isFillEnabled());
+                if (!isFieldEmpty(progressCtrl.getProgressTextSize()))
+                    circleProgressView.setProgressTextSize(progressCtrl.getProgressTextSize());
+                if (!isFieldEmpty(progressCtrl.getProgressTextColor()))
                     circleProgressView.setProgressTextColor(
-                            Color.parseColor(progressEl.getProgressTextColor()));
-                circleProgressView.setTrackEnabled(progressEl.isTrackEnabled());
-                if (!isFieldEmpty(progressEl.getTrackColor()))
-                    circleProgressView.setTrackColor(Color.parseColor(progressEl.getTrackColor()));
-                circleProgressView.setProgressTextVisibility(progressEl.isProgressTextVisibility());
-                circleProgressView.setGraduatedEnabled(progressEl.isGraduatedEnabled());
+                            Color.parseColor(progressCtrl.getProgressTextColor()));
+                circleProgressView.setTrackEnabled(progressCtrl.isTrackEnabled());
+                if (!isFieldEmpty(progressCtrl.getTrackColor()))
+                    circleProgressView.setTrackColor(Color.parseColor(progressCtrl.getTrackColor()));
+                circleProgressView.setProgressTextVisibility(progressCtrl.isProgressTextVisibility());
+                circleProgressView.setGraduatedEnabled(progressCtrl.isGraduatedEnabled());
                 circleProgressView.setScaleZoneWidth(
-                        GraphicsHelper.dpToPx(progressEl.getScaleZoneWidth()));
+                        GraphicsHelper.dpToPx(progressCtrl.getScaleZoneWidth()));
                 circleProgressView.setScaleZoneLength(
-                        GraphicsHelper.dpToPx(progressEl.getScaleZoneLength()));
+                        GraphicsHelper.dpToPx(progressCtrl.getScaleZoneLength()));
                 circleProgressView.setScaleZonePadding(
-                        GraphicsHelper.dpToPx(progressEl.getScaleZonePadding()));
+                        GraphicsHelper.dpToPx(progressCtrl.getScaleZonePadding()));
                 circleProgressView.setScaleZoneCornerRadius(
-                        GraphicsHelper.dpToPx(progressEl.getScaleZoneCornerRadius()));
+                        GraphicsHelper.dpToPx(progressCtrl.getScaleZoneCornerRadius()));
                 result = circleProgressView;
-            } else if (progressEl.getProgressType() == Elements.ProgressEl.ProgressType.HORIZONTAL) {
+            } else if (progressCtrl.getProgressType() == Controls.ProgressCtrl.ProgressType.HORIZONTAL) {
                 HorizontalProgressView horizontalProgressView = new HorizontalProgressView(context);
-                if (!isFieldEmpty(progressEl.getTrackWidth()))
-                    horizontalProgressView.setTrackWidth(progressEl.getTrackWidth());
-                if (!isFieldEmpty(progressEl.getProgressTextSize()))
-                    horizontalProgressView.setProgressTextSize(progressEl.getProgressTextSize());
-                if (!isFieldEmpty(progressEl.getProgressTextColor()))
+                if (!isFieldEmpty(progressCtrl.getTrackWidth()))
+                    horizontalProgressView.setTrackWidth(progressCtrl.getTrackWidth());
+                if (!isFieldEmpty(progressCtrl.getProgressTextSize()))
+                    horizontalProgressView.setProgressTextSize(progressCtrl.getProgressTextSize());
+                if (!isFieldEmpty(progressCtrl.getProgressTextColor()))
                     horizontalProgressView.setProgressTextColor(
-                            Color.parseColor(progressEl.getProgressTextColor()));
-                horizontalProgressView.setTrackEnabled(progressEl.isTrackEnabled());
-                if (!isFieldEmpty(progressEl.getTrackColor()))
-                    horizontalProgressView.setTrackColor(Color.parseColor(progressEl.getTrackColor()));
-                horizontalProgressView.setProgressTextVisibility(progressEl.isProgressTextVisibility());
+                            Color.parseColor(progressCtrl.getProgressTextColor()));
+                horizontalProgressView.setTrackEnabled(progressCtrl.isTrackEnabled());
+                if (!isFieldEmpty(progressCtrl.getTrackColor()))
+                    horizontalProgressView.setTrackColor(Color.parseColor(progressCtrl.getTrackColor()));
+                horizontalProgressView.setProgressTextVisibility(progressCtrl.isProgressTextVisibility());
                 horizontalProgressView.setProgressCornerRadius(
-                        GraphicsHelper.dpToPx(progressEl.getProgressCornerRadius()));
-                if (!isFieldEmpty(progressEl.getProgressTextPaddingBottom()))
+                        GraphicsHelper.dpToPx(progressCtrl.getProgressCornerRadius()));
+                if (!isFieldEmpty(progressCtrl.getProgressTextPaddingBottom()))
                     horizontalProgressView.setProgressTextPaddingBottom(
-                            GraphicsHelper.dpToPx(progressEl.getProgressTextPaddingBottom()));
-                horizontalProgressView.setProgressTextMoved(progressEl.isProgressTextMoved());
+                            GraphicsHelper.dpToPx(progressCtrl.getProgressTextPaddingBottom()));
+                horizontalProgressView.setProgressTextMoved(progressCtrl.isProgressTextMoved());
                 result = horizontalProgressView;
             }
-        } else if (element instanceof Elements.VideoPlayerEl) {
-            Elements.VideoPlayerEl videoPlayerEl = (Elements.VideoPlayerEl) element;
-            SimpleExoPlayer player = ExoPlayerFactory.newSimpleInstance(context);
-            PlayerView playerView = new PlayerView(context);
-            playerView.setPlayer(player);
-            DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(context,
-                    Util.getUserAgent(context, appName));
-            MediaSource videoSource = new ExtractorMediaSource.Factory(dataSourceFactory)
-                    .createMediaSource(Uri.parse(videoPlayerEl.getVideoUrl()));
-            player.prepare(videoSource);
-            result = playerView;
-        } else if (element instanceof Elements.LineChartEl) {
-            Elements.LineChartEl chartEl = (Elements.LineChartEl) element;
+        } else if (control instanceof Controls.VideoPlayerCtrl) {
+            Controls.VideoPlayerCtrl videoPlayerCtrl = (Controls.VideoPlayerCtrl) control;
+            VideoView videoView = new VideoView(context);
+            videoView.getVideoInfo().setPortraitWhenFullScreen(true);
+            videoView.setVideoPath(Uri.parse(videoPlayerCtrl
+                    .getVideoUrl()).toString());
+            if (!isFieldEmpty(videoPlayerCtrl.getProgress()))
+                videoView.getPlayer().seekTo(videoPlayerCtrl.getProgress());
+            if (videoPlayerCtrl.isPlaying())
+                videoView.getPlayer().start();
+            Timer timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    videoPlayerCtrl.setProgress(videoView.getPlayer().getCurrentPosition());
+                }
+            }, 1, 1000);
+            result = videoView;
+        } else if (control instanceof Controls.LineChartCtrl) {
+            Controls.LineChartCtrl chartEl = (Controls.LineChartCtrl) control;
             LineChartView lineChartView = new LineChartView(context);
             LineSet dataset = new LineSet();
             for (Data.Point point : chartEl.getPoints()) {
@@ -273,8 +345,8 @@ public class UiEngine {
             lineChartView.setClickablePointRadius(GraphicsHelper.dpToPx(chartEl.getDotsRadius()));
             lineChartView.show();
             result = lineChartView;
-        } else if (element instanceof Elements.BarChartEl) {
-            Elements.BarChartEl chartEl = (Elements.BarChartEl) element;
+        } else if (control instanceof Controls.BarChartCtrl) {
+            Controls.BarChartCtrl chartEl = (Controls.BarChartCtrl) control;
             BarChartView barChartView = new BarChartView(context);
             if (!isFieldEmpty(chartEl.getBarSpacing()))
                 barChartView.setBarSpacing(GraphicsHelper.dpToPx(chartEl.getBarSpacing()));
@@ -303,8 +375,8 @@ public class UiEngine {
                 barChartView.setLabelsColor(Color.parseColor(chartEl.getLabelsColor()));
             barChartView.show();
             result = barChartView;
-        } else if (element instanceof Elements.HorizontalBarChartEl) {
-            Elements.HorizontalBarChartEl chartEl = (Elements.HorizontalBarChartEl) element;
+        } else if (control instanceof Controls.HorizontalBarChartCtrl) {
+            Controls.HorizontalBarChartCtrl chartEl = (Controls.HorizontalBarChartCtrl) control;
             HorizontalBarChartView horizontalBarChartView = new HorizontalBarChartView(context);
             if (!isFieldEmpty(chartEl.getBarSpacing()))
                 horizontalBarChartView.setBarSpacing(GraphicsHelper.dpToPx(chartEl.getBarSpacing()));
@@ -333,22 +405,22 @@ public class UiEngine {
                 horizontalBarChartView.setLabelsColor(Color.parseColor(chartEl.getLabelsColor()));
             horizontalBarChartView.show();
             result = horizontalBarChartView;
-        } else if (element instanceof Elements.StackBarChartEl) {
-            Elements.StackBarChartEl stackBarChartEl = (Elements.StackBarChartEl) element;
+        } else if (control instanceof Controls.StackBarChartCtrl) {
+            Controls.StackBarChartCtrl stackBarChartCtrl = (Controls.StackBarChartCtrl) control;
             StackBarChartView stackBarChartView = new StackBarChartView(context);
-            if (!isFieldEmpty(stackBarChartEl.getBarSpacing()))
-                stackBarChartView.setBarSpacing(GraphicsHelper.dpToPx(stackBarChartEl.getBarSpacing()));
-            if (!isFieldEmpty(stackBarChartEl.getBarBackgroundColor()))
+            if (!isFieldEmpty(stackBarChartCtrl.getBarSpacing()))
+                stackBarChartView.setBarSpacing(GraphicsHelper.dpToPx(stackBarChartCtrl.getBarSpacing()));
+            if (!isFieldEmpty(stackBarChartCtrl.getBarBackgroundColor()))
                 stackBarChartView.setBarBackgroundColor(
-                        Color.parseColor(stackBarChartEl.getBarBackgroundColor()));
-            if (!isFieldEmpty(stackBarChartEl.getRoundCorners()))
+                        Color.parseColor(stackBarChartCtrl.getBarBackgroundColor()));
+            if (!isFieldEmpty(stackBarChartCtrl.getRoundCorners()))
                 stackBarChartView.setRoundCorners(
-                        GraphicsHelper.dpToPx(stackBarChartEl.getRoundCorners()));
+                        GraphicsHelper.dpToPx(stackBarChartCtrl.getRoundCorners()));
             BarSet dataset = new BarSet();
-            if (!isFieldEmpty(stackBarChartEl.getBarsColor()))
-                dataset.setColor(Color.parseColor(stackBarChartEl.getBarsColor()));
-            Iterator<Data.Point> pointIterator = stackBarChartEl.getPoints().iterator();
-            Iterator<Data.StringValue> barColorIterator = stackBarChartEl.getBarColors().iterator();
+            if (!isFieldEmpty(stackBarChartCtrl.getBarsColor()))
+                dataset.setColor(Color.parseColor(stackBarChartCtrl.getBarsColor()));
+            Iterator<Data.Point> pointIterator = stackBarChartCtrl.getPoints().iterator();
+            Iterator<Data.StringValue> barColorIterator = stackBarChartCtrl.getBarColors().iterator();
             while (pointIterator.hasNext() && barColorIterator.hasNext()) {
                 Data.Point point = pointIterator.next();
                 Data.StringValue barColor = barColorIterator.next();
@@ -357,32 +429,32 @@ public class UiEngine {
                 dataset.addBar(bar);
             }
             stackBarChartView.addData(dataset);
-            if (!isFieldEmpty(stackBarChartEl.getAxisColor()))
-                stackBarChartView.setAxisColor(Color.parseColor(stackBarChartEl.getAxisColor()));
-            if (!isFieldEmpty(stackBarChartEl.getLabelsColor()))
-                stackBarChartView.setLabelsColor(Color.parseColor(stackBarChartEl.getLabelsColor()));
+            if (!isFieldEmpty(stackBarChartCtrl.getAxisColor()))
+                stackBarChartView.setAxisColor(Color.parseColor(stackBarChartCtrl.getAxisColor()));
+            if (!isFieldEmpty(stackBarChartCtrl.getLabelsColor()))
+                stackBarChartView.setLabelsColor(Color.parseColor(stackBarChartCtrl.getLabelsColor()));
             stackBarChartView.show();
             result = stackBarChartView;
-        } else if (element instanceof Elements.HorizontalStackBarChartEl) {
-            Elements.HorizontalStackBarChartEl horizontalStackBarChartEl =
-                    (Elements.HorizontalStackBarChartEl) element;
+        } else if (control instanceof Controls.HorizontalStackBarChartCtrl) {
+            Controls.HorizontalStackBarChartCtrl horizontalStackBarChartCtrl =
+                    (Controls.HorizontalStackBarChartCtrl) control;
             HorizontalStackBarChartView horizontalStackBarChartView =
                     new HorizontalStackBarChartView(context);
-            if (!isFieldEmpty(horizontalStackBarChartEl.getBarSpacing()))
+            if (!isFieldEmpty(horizontalStackBarChartCtrl.getBarSpacing()))
                 horizontalStackBarChartView.setBarSpacing(
-                        GraphicsHelper.dpToPx(horizontalStackBarChartEl.getBarSpacing()));
-            if (!isFieldEmpty(horizontalStackBarChartEl.getBarBackgroundColor()))
+                        GraphicsHelper.dpToPx(horizontalStackBarChartCtrl.getBarSpacing()));
+            if (!isFieldEmpty(horizontalStackBarChartCtrl.getBarBackgroundColor()))
                 horizontalStackBarChartView.setBarBackgroundColor(
-                        Color.parseColor(horizontalStackBarChartEl.getBarBackgroundColor()));
-            if (!isFieldEmpty(horizontalStackBarChartEl.getRoundCorners()))
+                        Color.parseColor(horizontalStackBarChartCtrl.getBarBackgroundColor()));
+            if (!isFieldEmpty(horizontalStackBarChartCtrl.getRoundCorners()))
                 horizontalStackBarChartView.setRoundCorners(
-                        GraphicsHelper.dpToPx(horizontalStackBarChartEl.getRoundCorners()));
+                        GraphicsHelper.dpToPx(horizontalStackBarChartCtrl.getRoundCorners()));
             BarSet dataset = new BarSet();
-            if (!isFieldEmpty(horizontalStackBarChartEl.getBarsColor()))
-                dataset.setColor(Color.parseColor(horizontalStackBarChartEl.getBarsColor()));
-            Iterator<Data.Point> pointIterator = horizontalStackBarChartEl.getPoints().iterator();
+            if (!isFieldEmpty(horizontalStackBarChartCtrl.getBarsColor()))
+                dataset.setColor(Color.parseColor(horizontalStackBarChartCtrl.getBarsColor()));
+            Iterator<Data.Point> pointIterator = horizontalStackBarChartCtrl.getPoints().iterator();
             Iterator<Data.StringValue> barColorIterator =
-                    horizontalStackBarChartEl.getBarColors().iterator();
+                    horizontalStackBarChartCtrl.getBarColors().iterator();
             while (pointIterator.hasNext() && barColorIterator.hasNext()) {
                 Data.Point point = pointIterator.next();
                 Data.StringValue barColor = barColorIterator.next();
@@ -391,33 +463,262 @@ public class UiEngine {
                 dataset.addBar(bar);
             }
             horizontalStackBarChartView.addData(dataset);
-            if (!isFieldEmpty(horizontalStackBarChartEl.getAxisColor()))
+            if (!isFieldEmpty(horizontalStackBarChartCtrl.getAxisColor()))
                 horizontalStackBarChartView.setAxisColor(
-                        Color.parseColor(horizontalStackBarChartEl.getAxisColor()));
-            if (!isFieldEmpty(horizontalStackBarChartEl.getLabelsColor()))
+                        Color.parseColor(horizontalStackBarChartCtrl.getAxisColor()));
+            if (!isFieldEmpty(horizontalStackBarChartCtrl.getLabelsColor()))
                 horizontalStackBarChartView.setLabelsColor(
-                        Color.parseColor(horizontalStackBarChartEl.getLabelsColor()));
+                        Color.parseColor(horizontalStackBarChartCtrl.getLabelsColor()));
             horizontalStackBarChartView.show();
             result = horizontalStackBarChartView;
-        } else if (element instanceof Elements.ScrollerEl) {
-            Elements.ScrollerEl scrollerEl = (Elements.ScrollerEl) element;
+        } else if (control instanceof Controls.ScrollerCtrl) {
+            Controls.ScrollerCtrl scrollerCtrl = (Controls.ScrollerCtrl) control;
             ScrollView scrollView = new ScrollView(context);
-            View panelView = render(Elements.PanelEl.LayoutType.NONE, scrollerEl.getPanel());
+            Tuple<View, List<Pair<Controls.Control, View>>
+                    , Hashtable<String, Pair<Controls.Control, View>>> pair =
+                    buildViewTree(Controls.PanelCtrl.LayoutType.RELATIVE, scrollerCtrl.getPanel());
+            View panelView = pair.getItem1();
+            statefulCtrls.addAll(pair.getItem2());
+            idTable.putAll(pair.getItem3());
             panelView.setLayoutParams(new ScrollView.LayoutParams(
                     ScrollView.LayoutParams.MATCH_PARENT,
                     ScrollView.LayoutParams.WRAP_CONTENT));
             scrollView.addView(panelView);
+            scrollView.scrollTo(0, scrollerCtrl.getPosition());
+            scrollView.getViewTreeObserver()
+                    .addOnScrollChangedListener(() -> {
+                        scrollerCtrl.setPosition(scrollView.getScrollY());
+                    });
             result = scrollView;
+        } else if (control instanceof Controls.CheckCtrl) {
+            Controls.CheckCtrl checkCtrl = (Controls.CheckCtrl) control;
+            CheckBox checkBox = new CheckBox(context);
+            if (!isFieldEmpty(checkCtrl.getCaption()))
+                checkBox.setText(checkCtrl.getCaption());
+            if (!isFieldEmpty(checkCtrl.getCaptionColor()))
+                checkBox.setTextColor(Color.parseColor(checkCtrl.getCaptionColor()));
+            if (!isFieldEmpty(checkCtrl.getCaptionSize()))
+                checkBox.setTextSize(TypedValue.COMPLEX_UNIT_SP, checkCtrl.getCaptionSize());
+            if (!isFieldEmpty(checkCtrl.getTintColor())) {
+                ColorStateList  colorStateList = new ColorStateList(
+                        new int[][]{
+                                new int[]{-android.R.attr.state_checked}, // unchecked
+                                new int[]{android.R.attr.state_checked} , // checked
+                        },
+                        new int[]{
+                                Color.parseColor(checkCtrl.getTintColor()),
+                                Color.parseColor(checkCtrl.getTintColor()),
+                        }
+                );
+                CompoundButtonCompat.setButtonTintList(checkBox,colorStateList);
+            }
+            checkBox.setChecked(checkCtrl.isChecked());
+            checkBox.setOnCheckedChangeListener((compoundButton, b)
+                    -> checkCtrl.setChecked(checkBox.isChecked()));
+            result = checkBox;
+        } else if (control instanceof Controls.OptionCtrl) {
+            Controls.OptionCtrl optionCtrl = (Controls.OptionCtrl) control;
+            RadioButton radioButton = new RadioButton(context);
+            if (!isFieldEmpty(optionCtrl.getCaption()))
+                radioButton.setText(optionCtrl.getCaption());
+            if (!isFieldEmpty(optionCtrl.getCaptionColor()))
+                radioButton.setTextColor(Color.parseColor(optionCtrl.getCaptionColor()));
+            if (!isFieldEmpty(optionCtrl.getCaptionSize()))
+                radioButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, optionCtrl.getCaptionSize());
+            if (!isFieldEmpty(optionCtrl.getTintColor())) {
+                ColorStateList colorStateList = new ColorStateList(
+                        new int[][]{
+                                new int[]{-android.R.attr.state_checked}, // unchecked
+                                new int[]{android.R.attr.state_checked}, // checked
+                        },
+                        new int[]{
+                                Color.parseColor(optionCtrl.getTintColor()),
+                                Color.parseColor(optionCtrl.getTintColor()),
+                        }
+                );
+                CompoundButtonCompat.setButtonTintList(radioButton, colorStateList);
+            }
+            radioButton.setChecked(optionCtrl.isChecked());
+            radioButton.setOnCheckedChangeListener((compoundButton, b)
+                    -> optionCtrl.setChecked(radioButton.isChecked()));
+            result = radioButton;
+        } else if (control instanceof Controls.DropDownCtrl) {
+            Controls.DropDownCtrl dropDownCtrl = (Controls.DropDownCtrl) control;
+            Spinner spinner = new Spinner(context);
+            spinner.setAdapter(new SpinnerAdapter() {
+                @Override
+                public View getDropDownView(int i, View view, ViewGroup viewGroup) {
+                    Tuple<View, List<Pair<Controls.Control, View>>,
+                            Hashtable<String, Pair<Controls.Control, View>>> pair = buildViewTree(
+                            Controls.PanelCtrl.LayoutType.LINEAR_VERTICAL,
+                            dropDownCtrl.getItems().get(i));
+                    View itemView = pair.getItem1();
+                    initFingerprint(pair.getItem2(), i);
+                    idTable.putAll(pair.getItem3());
+                    return itemView;
+                }
+
+                @Override
+                public void registerDataSetObserver(DataSetObserver dataSetObserver) {
+
+                }
+
+                @Override
+                public void unregisterDataSetObserver(DataSetObserver dataSetObserver) {
+
+                }
+
+                @Override
+                public int getCount() {
+                    return dropDownCtrl.getItems().size();
+                }
+
+                @Override
+                public Object getItem(int i) {
+                    return dropDownCtrl.getItems().get(i);
+                }
+
+                @Override
+                public long getItemId(int i) {
+                    return i;
+                }
+
+                @Override
+                public boolean hasStableIds() {
+                    return true;
+                }
+
+                @Override
+                public View getView(int i, View view, ViewGroup viewGroup) {
+                    Tuple<View, List<Pair<Controls.Control, View>>,
+                            Hashtable<String, Pair<Controls.Control, View>>> pair = buildViewTree(
+                            Controls.PanelCtrl.LayoutType.LINEAR_VERTICAL,
+                            dropDownCtrl.getItems().get(i));
+                    View itemView = pair.getItem1();
+                    initFingerprint(pair.getItem2(), i);
+                    idTable.putAll(pair.getItem3());
+                    return itemView;
+                }
+
+                @Override
+                public int getItemViewType(int i) {
+                    return 1;
+                }
+
+                @Override
+                public int getViewTypeCount() {
+                    return 1;
+                }
+
+                @Override
+                public boolean isEmpty() {
+                    return dropDownCtrl.getItems().size() == 0;
+                }
+            });
+            spinner.setSelection(dropDownCtrl.getSelectedPos());
+            spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                    dropDownCtrl.setSelectedPos(spinner.getSelectedItemPosition());
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> adapterView) {
+
+                }
+            });
+            result = spinner;
+        } else if (control instanceof Controls.RecyclerListCtrl) {
+            Controls.RecyclerListCtrl recyclerListCtrl = (Controls.RecyclerListCtrl) control;
+            RecyclerView recyclerView = new RecyclerView(context);
+            if (recyclerListCtrl.getRecyclerType() ==
+                    Controls.RecyclerListCtrl.RecyclerLayoutType.LINEAR) {
+                if (recyclerListCtrl.getOrientation() ==
+                        Controls.RecyclerListCtrl.RecyclerOrientation.HORIZONTAL)
+                    recyclerView.setLayoutManager(new LinearLayoutManager(
+                            context, RecyclerView.HORIZONTAL, false));
+                else if (recyclerListCtrl.getOrientation() ==
+                        Controls.RecyclerListCtrl.RecyclerOrientation.VERTICAL)
+                    recyclerView.setLayoutManager(new LinearLayoutManager(
+                            context, RecyclerView.VERTICAL, false));
+            } else {
+                if (recyclerListCtrl.getOrientation() ==
+                        Controls.RecyclerListCtrl.RecyclerOrientation.HORIZONTAL)
+                    recyclerView.setLayoutManager(new GridLayoutManager(
+                            context, recyclerListCtrl.getGridSpanCount()
+                            , RecyclerView.HORIZONTAL, false));
+                else if (recyclerListCtrl.getOrientation() ==
+                        Controls.RecyclerListCtrl.RecyclerOrientation.VERTICAL)
+                    recyclerView.setLayoutManager(new GridLayoutManager(
+                            context, recyclerListCtrl.getGridSpanCount()
+                            , RecyclerView.VERTICAL, false));
+            }
+            recyclerView.setAdapter(new RecyclerView.Adapter() {
+                @NonNull
+                @Override
+                public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
+                    RelativeLayout itemContainer = new RelativeLayout(context);
+                    itemContainer.setLayoutParams(
+                            new RecyclerView.LayoutParams(
+                                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                                    ViewGroup.LayoutParams.WRAP_CONTENT));
+                    return new ItemHolder(itemContainer);
+                }
+
+                @Override
+                public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int i) {
+                    Tuple<View, List<Pair<Controls.Control, View>>,
+                            Hashtable<String, Pair<Controls.Control, View>>> pair =
+                            buildViewTree(
+                                    Controls.PanelCtrl.LayoutType.RELATIVE,
+                                    recyclerListCtrl.getItems().get(i));
+                    View itemView = pair.getItem1();
+                    initFingerprint(pair.getItem2(), i);
+                    idTable.putAll(pair.getItem3());
+                    ((ViewGroup)((ItemHolder) holder).itemView).addView(itemView);
+                }
+
+                @Override
+                public int getItemCount() {
+                    return recyclerListCtrl.getItems().size();
+                }
+
+                class ItemHolder extends RecyclerView.ViewHolder {
+                    ItemHolder(View itemView) {
+                        super(itemView);
+                    }
+                }
+            });
+            result = recyclerView;
         }
 
         if (result != null) {
-            result = fillGeneralProps(result, parentLayoutType, element);
+            result = fillGeneralProps(result, parentLayoutType, control);
         }
 
-        return result;
+        if (!isFieldEmpty(control.getId()))
+            idTable.put(control.getId(), new Pair<>(control, result));
+
+        return new Tuple<>(result, statefulCtrls, idTable);
     }
 
-    private View fillGeneralProps(View view, Elements.PanelEl.LayoutType parentLayoutType, Elements.Element el) {
+    private void initFingerprint(List<Pair<Controls.Control, View>> list, int i) {
+        for (Pair<Controls.Control, View> statefulCtrl : list) {
+            View target = statefulCtrl.second;
+            if (target instanceof CardView) {
+                target = ((CardView) target).getChildAt(0);
+                if (target instanceof CardView) {
+                    target = ((CardView) target).getChildAt(0);
+                }
+            }
+            if (statefulCtrl.first instanceof Controls.VideoPlayerCtrl) {
+                VideoView videoView = (VideoView) target;
+                videoView.setFingerprint(i);
+            }
+        }
+    }
+
+    private View fillGeneralProps(View view, Controls.PanelCtrl.LayoutType parentLayoutType, Controls.Control el) {
         if (!(el.getPaddingLeft() == 0 && el.getPaddingTop() == 0 &&
                 el.getPaddingTop() == 0 && el.getPaddingBottom() == 0))
             view.setPadding(
@@ -477,15 +778,15 @@ public class UiEngine {
         else
             view.setElevation(el.getElevation());
         ViewGroup.LayoutParams mlp = null;
-        if (parentLayoutType == Elements.PanelEl.LayoutType.RELATIVE) {
+        if (parentLayoutType == Controls.PanelCtrl.LayoutType.RELATIVE) {
             mlp = new RelativeLayout.LayoutParams(0, 0);
             ((RelativeLayout.LayoutParams) mlp).setMargins(
                     GraphicsHelper.dpToPx(el.getMarginLeft()),
                     GraphicsHelper.dpToPx(el.getMarginTop()),
                     GraphicsHelper.dpToPx(el.getMarginRight()),
                     GraphicsHelper.dpToPx(el.getMarginBottom()));
-        } else if (parentLayoutType == Elements.PanelEl.LayoutType.LINEAR_VERTICAL ||
-                parentLayoutType == Elements.PanelEl.LayoutType.LINEAR_HORIZONTAL) {
+        } else if (parentLayoutType == Controls.PanelCtrl.LayoutType.LINEAR_VERTICAL ||
+                parentLayoutType == Controls.PanelCtrl.LayoutType.LINEAR_HORIZONTAL) {
             mlp = new LinearLayout.LayoutParams(0, 0);
             ((LinearLayout.LayoutParams) mlp).setMargins(
                     GraphicsHelper.dpToPx(el.getMarginLeft()),
@@ -497,9 +798,9 @@ public class UiEngine {
         if (mlp != null) {
 
             if (!isFieldEmpty(el.getWidth())) {
-                if (el.getWidth() == Elements.Element.MATCH_PARENT)
+                if (el.getWidth() == Controls.Control.MATCH_PARENT)
                     mlp.width = ViewGroup.LayoutParams.MATCH_PARENT;
-                else if (el.getWidth() == Elements.Element.WRAP_CONTENT)
+                else if (el.getWidth() == Controls.Control.WRAP_CONTENT)
                     mlp.width = ViewGroup.LayoutParams.WRAP_CONTENT;
                 else
                     mlp.width = GraphicsHelper.dpToPx(el.getWidth());
@@ -508,9 +809,9 @@ public class UiEngine {
                 mlp.width = ViewGroup.LayoutParams.WRAP_CONTENT;
 
             if (!isFieldEmpty(el.getHeight())) {
-                if (el.getHeight() == Elements.Element.MATCH_PARENT)
+                if (el.getHeight() == Controls.Control.MATCH_PARENT)
                     mlp.height = ViewGroup.LayoutParams.MATCH_PARENT;
-                else if (el.getHeight() == Elements.Element.WRAP_CONTENT)
+                else if (el.getHeight() == Controls.Control.WRAP_CONTENT)
                     mlp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
                 else
                     mlp.height = GraphicsHelper.dpToPx(el.getHeight());
@@ -518,7 +819,7 @@ public class UiEngine {
             else
                 mlp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
 
-            if (el.getX() == Elements.Element.CENTER) {
+            if (el.getX() == Controls.Control.CENTER) {
                 if (mlp instanceof RelativeLayout.LayoutParams)
                     ((RelativeLayout.LayoutParams) mlp).addRule(RelativeLayout.CENTER_HORIZONTAL);
                 else if (mlp instanceof LinearLayout.LayoutParams)
@@ -526,7 +827,7 @@ public class UiEngine {
             } else
                 view.setX(GraphicsHelper.dpToPx(el.getX()));
 
-            if (el.getY() == Elements.Element.CENTER) {
+            if (el.getY() == Controls.Control.CENTER) {
                 if (mlp instanceof RelativeLayout.LayoutParams)
                     ((RelativeLayout.LayoutParams) mlp).addRule(RelativeLayout.CENTER_VERTICAL);
                 else if (mlp instanceof LinearLayout.LayoutParams) {
@@ -569,12 +870,16 @@ public class UiEngine {
         return input == 0;
     }
 
-    private boolean isFieldEmpty(Elements.ImageEl.ImageScaleType input) {
-        return input == Elements.ImageEl.ImageScaleType.NONE;
+    private boolean isFieldEmpty(Controls.PanelCtrl.LayoutType input) {
+        return input == null;
     }
 
-    private boolean isFieldEmpty(Elements.TextEl.GravityType input) {
-        return input == Elements.TextEl.GravityType.NONE;
+    private boolean isFieldEmpty(Controls.ImageCtrl.ImageScaleType input) {
+        return input == null || input == Controls.ImageCtrl.ImageScaleType.NONE;
+    }
+
+    private boolean isFieldEmpty(Controls.TextCtrl.GravityType input) {
+        return input == null || input == Controls.TextCtrl.GravityType.NONE;
     }
 
     private boolean isFieldEmpty(List input) {

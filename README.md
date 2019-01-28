@@ -1,5 +1,5 @@
 # KasperPulseFramework
-you can build android client ui by generating ui json string serverside and pushing it to client . this framework will get a json string as input and generate android ui elements tree . 
+you can build android client ui by generating ui json string serverside and pushing it to client . this framework will get a json string as input and generate android ui controls tree .
 
 ## Setup :
 

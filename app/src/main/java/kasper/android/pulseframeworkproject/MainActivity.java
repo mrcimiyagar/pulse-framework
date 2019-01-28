@@ -1,6 +1,6 @@
 package kasper.android.pulseframeworkproject;
 
-import android.support.v7.app.AppCompatActivity;
+import android.os.Handler;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -10,9 +10,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import androidx.appcompat.app.AppCompatActivity;
 import kasper.android.pulseframework.components.PulseView;
 import kasper.android.pulseframework.models.Data;
-import kasper.android.pulseframework.models.Elements;
+import kasper.android.pulseframework.models.Controls;
+import kasper.android.pulseframework.models.Updates;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -26,76 +28,77 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Elements.ScrollerEl scrollerEl = new Elements.ScrollerEl();
-        scrollerEl.setWidth(Elements.Element.MATCH_PARENT);
-        scrollerEl.setHeight(Elements.Element.MATCH_PARENT);
+        Controls.ScrollerCtrl scrollerCtrl = new Controls.ScrollerCtrl();
+        scrollerCtrl.setWidth(Controls.Control.MATCH_PARENT);
+        scrollerCtrl.setHeight(Controls.Control.MATCH_PARENT);
 
-        Elements.PanelEl containerEl = new Elements.PanelEl();
-        containerEl.setWidth(Elements.Element.MATCH_PARENT);
-        containerEl.setHeight(Elements.Element.WRAP_CONTENT);
-        containerEl.setLayoutType(Elements.PanelEl.LayoutType.LINEAR_VERTICAL);
-        containerEl.setElements(new ArrayList<>());
-        scrollerEl.setPanel(containerEl);
+        Controls.PanelCtrl containerEl = new Controls.PanelCtrl();
+        containerEl.setWidth(Controls.Control.MATCH_PARENT);
+        containerEl.setHeight(Controls.Control.WRAP_CONTENT);
+        containerEl.setLayoutType(Controls.PanelCtrl.LayoutType.LINEAR_VERTICAL);
+        containerEl.setControls(new ArrayList<>());
+        scrollerCtrl.setPanel(containerEl);
 
-        Elements.PanelEl welcomeMessageEl = new Elements.PanelEl();
+        Controls.PanelCtrl welcomeMessageEl = new Controls.PanelCtrl();
+        welcomeMessageEl.setId("WelcomeMessageEl");
         welcomeMessageEl.setWidth(300);
         welcomeMessageEl.setHeight(72);
-        welcomeMessageEl.setLayoutType(Elements.PanelEl.LayoutType.RELATIVE);
+        welcomeMessageEl.setLayoutType(Controls.PanelCtrl.LayoutType.RELATIVE);
         welcomeMessageEl.setBackColor(colorDarkLight);
         welcomeMessageEl.setCornerRadius(36);
-        welcomeMessageEl.setX(Elements.Element.CENTER);
+        welcomeMessageEl.setX(Controls.Control.CENTER);
         welcomeMessageEl.setMarginTop(56);
         welcomeMessageEl.setElevation(6);
-        welcomeMessageEl.setElements(new ArrayList<>());
-        containerEl.getElements().add(welcomeMessageEl);
+        welcomeMessageEl.setControls(new ArrayList<>());
+        containerEl.getControls().add(welcomeMessageEl);
 
-        Elements.ImageEl profileImageEl = new Elements.ImageEl();
-        profileImageEl.setWidth(72);
-        profileImageEl.setHeight(72);
-        profileImageEl.setScaleType(Elements.ImageEl.ImageScaleType.CENTER_CROP);
-        profileImageEl.setCornerRadius(36);
-        profileImageEl.setElevation(6);
-        profileImageEl.setImageUrl("https://quera.ir/media/CACHE/images/public/avatars/dbb966f617244cd8beb7a7bca29fa2c5/4ea69e7d275c233761a727dfb97e4fc1.jpg");
-        welcomeMessageEl.getElements().add(profileImageEl);
+        Controls.ImageCtrl profileImageCtrl = new Controls.ImageCtrl();
+        profileImageCtrl.setWidth(72);
+        profileImageCtrl.setHeight(72);
+        profileImageCtrl.setScaleType(Controls.ImageCtrl.ImageScaleType.CENTER_CROP);
+        profileImageCtrl.setCornerRadius(36);
+        profileImageCtrl.setElevation(6);
+        profileImageCtrl.setImageUrl("https://quera.ir/media/CACHE/images/public/avatars/dbb966f617244cd8beb7a7bca29fa2c5/4ea69e7d275c233761a727dfb97e4fc1.jpg");
+        welcomeMessageEl.getControls().add(profileImageCtrl);
 
-        Elements.PanelEl welcomeTextsEl = new Elements.PanelEl();
-        welcomeTextsEl.setWidth(Elements.Element.MATCH_PARENT);
-        welcomeTextsEl.setHeight(Elements.Element.MATCH_PARENT);
-        welcomeTextsEl.setLayoutType(Elements.PanelEl.LayoutType.LINEAR_VERTICAL);
+        Controls.PanelCtrl welcomeTextsEl = new Controls.PanelCtrl();
+        welcomeTextsEl.setWidth(Controls.Control.MATCH_PARENT);
+        welcomeTextsEl.setHeight(Controls.Control.MATCH_PARENT);
+        welcomeTextsEl.setLayoutType(Controls.PanelCtrl.LayoutType.LINEAR_VERTICAL);
         welcomeTextsEl.setMarginLeft(80);
         welcomeTextsEl.setMarginTop(6);
         welcomeTextsEl.setMarginBottom(6);
-        welcomeTextsEl.setElements(new ArrayList<>());
-        welcomeMessageEl.getElements().add(welcomeTextsEl);
+        welcomeTextsEl.setControls(new ArrayList<>());
+        welcomeMessageEl.getControls().add(welcomeTextsEl);
 
-        Elements.TextEl profileTitleEl = new Elements.TextEl();
-        profileTitleEl.setWidth(Elements.Element.WRAP_CONTENT);
+        Controls.TextCtrl profileTitleEl = new Controls.TextCtrl();
+        profileTitleEl.setWidth(Controls.Control.WRAP_CONTENT);
         profileTitleEl.setHeight(32);
         profileTitleEl.setText("Keyhan Mohammadi");
         profileTitleEl.setTextColor(colorBlue);
         profileTitleEl.setTextSize(16);
-        profileTitleEl.setGravityType(Elements.TextEl.GravityType.CENTER_VERTICAL);
-        welcomeTextsEl.getElements().add(profileTitleEl);
+        profileTitleEl.setGravityType(Controls.TextCtrl.GravityType.CENTER_VERTICAL);
+        welcomeTextsEl.getControls().add(profileTitleEl);
 
-        Elements.TextEl messageEl = new Elements.TextEl();
-        messageEl.setWidth(Elements.Element.WRAP_CONTENT);
+        Controls.TextCtrl messageEl = new Controls.TextCtrl();
+        messageEl.setWidth(Controls.Control.WRAP_CONTENT);
         messageEl.setHeight(28);
         messageEl.setText("Welcome to home in sky city");
         messageEl.setTextColor(colorBlue);
         messageEl.setTextSize(14);
-        messageEl.setGravityType(Elements.TextEl.GravityType.CENTER_VERTICAL);
-        welcomeTextsEl.getElements().add(messageEl);
+        messageEl.setGravityType(Controls.TextCtrl.GravityType.CENTER_VERTICAL);
+        welcomeTextsEl.getControls().add(messageEl);
 
-        Elements.PanelEl clockEl = new Elements.PanelEl();
+        Controls.PanelCtrl clockEl = new Controls.PanelCtrl();
         clockEl.setWidth(300);
         clockEl.setHeight(300);
-        clockEl.setLayoutType(Elements.PanelEl.LayoutType.RELATIVE);
+        clockEl.setLayoutType(Controls.PanelCtrl.LayoutType.RELATIVE);
         clockEl.setBackColor(colorDarkLight);
         clockEl.setCornerRadius(150);
         clockEl.setMarginTop(56);
-        clockEl.setX(Elements.Element.CENTER);
-        clockEl.setElements(new ArrayList<>());
-        containerEl.getElements().add(clockEl);
+        clockEl.setX(Controls.Control.CENTER);
+        clockEl.setControls(new ArrayList<>());
+        containerEl.getControls().add(clockEl);
 
         int x = 128;
         int y = 0;
@@ -104,149 +107,149 @@ public class MainActivity extends AppCompatActivity {
             double sin = Math.sin(Math.toRadians(counter * 30 - 90));
             int posX = (int) (x * cos - y * sin) + 128 + 4;
             int posY = (int) (x * sin + y * cos) + 128 + 4;
-            Elements.TextEl hourEl = new Elements.TextEl();
+            Controls.TextCtrl hourEl = new Controls.TextCtrl();
             hourEl.setX(posX);
             hourEl.setY(posY);
             hourEl.setWidth(32);
             hourEl.setHeight(32);
             hourEl.setText(counter == 0 ? "12" : counter + "");
-            hourEl.setGravityType(Elements.TextEl.GravityType.CENTER);
+            hourEl.setGravityType(Controls.TextCtrl.GravityType.CENTER);
             hourEl.setTextColor(colorBlue);
             hourEl.setTextSize(18);
-            clockEl.getElements().add(hourEl);
+            clockEl.getControls().add(hourEl);
         }
 
         for (int counter = 0; counter < 60; counter++) {
-            Elements.PanelEl panelEl = new Elements.PanelEl();
-            panelEl.setWidth(2);
-            panelEl.setHeight(300);
-            panelEl.setLayoutType(Elements.PanelEl.LayoutType.RELATIVE);
-            panelEl.setRotation(counter * 6);
-            panelEl.setX(150 - 4 / 2);
-            clockEl.getElements().add(panelEl);
+            Controls.PanelCtrl panelCtrl = new Controls.PanelCtrl();
+            panelCtrl.setWidth(2);
+            panelCtrl.setHeight(300);
+            panelCtrl.setLayoutType(Controls.PanelCtrl.LayoutType.RELATIVE);
+            panelCtrl.setRotation(counter * 6);
+            panelCtrl.setX(150 - 4 / 2);
+            clockEl.getControls().add(panelCtrl);
 
-            Elements.PanelEl secondEl = new Elements.PanelEl();
-            secondEl.setWidth(Elements.Element.MATCH_PARENT);
+            Controls.PanelCtrl secondEl = new Controls.PanelCtrl();
+            secondEl.setWidth(Controls.Control.MATCH_PARENT);
             secondEl.setHeight(8);
-            secondEl.setLayoutType(Elements.PanelEl.LayoutType.RELATIVE);
+            secondEl.setLayoutType(Controls.PanelCtrl.LayoutType.RELATIVE);
             secondEl.setBackColor(colorBlue);
-            panelEl.getElements().add(secondEl);
+            panelCtrl.getControls().add(secondEl);
         }
 
-        Elements.PanelEl hourHand = new Elements.PanelEl();
+        Controls.PanelCtrl hourHand = new Controls.PanelCtrl();
         hourHand.setWidth(150);
         hourHand.setHeight(8);
-        hourHand.setLayoutType(Elements.PanelEl.LayoutType.RELATIVE);
-        hourHand.setX(Elements.Element.CENTER);
+        hourHand.setLayoutType(Controls.PanelCtrl.LayoutType.RELATIVE);
+        hourHand.setX(Controls.Control.CENTER);
         hourHand.setY(clockEl.getHeight() / 2 - hourHand.getHeight() / 2);
-        hourHand.setElements(new ArrayList<>());
+        hourHand.setControls(new ArrayList<>());
         hourHand.setRotation(135);
-        clockEl.getElements().add(hourHand);
+        clockEl.getControls().add(hourHand);
 
-        Elements.PanelEl hourHalfHand = new Elements.PanelEl();
+        Controls.PanelCtrl hourHalfHand = new Controls.PanelCtrl();
         hourHalfHand.setWidth(hourHand.getWidth() / 2);
-        hourHalfHand.setHeight(Elements.Element.MATCH_PARENT);
-        hourHalfHand.setLayoutType(Elements.PanelEl.LayoutType.RELATIVE);
+        hourHalfHand.setHeight(Controls.Control.MATCH_PARENT);
+        hourHalfHand.setLayoutType(Controls.PanelCtrl.LayoutType.RELATIVE);
         hourHalfHand.setBackColor(colorBlue);
         hourHalfHand.setX(hourHand.getWidth() / 2);
-        hourHalfHand.setElements(new ArrayList<>());
+        hourHalfHand.setControls(new ArrayList<>());
         hourHalfHand.setCornerRadius(4);
-        hourHand.getElements().add(hourHalfHand);
+        hourHand.getControls().add(hourHalfHand);
 
-        Elements.PanelEl minuteHand = new Elements.PanelEl();
+        Controls.PanelCtrl minuteHand = new Controls.PanelCtrl();
         minuteHand.setWidth(200);
         minuteHand.setHeight(8);
-        minuteHand.setLayoutType(Elements.PanelEl.LayoutType.RELATIVE);
-        minuteHand.setX(Elements.Element.CENTER);
+        minuteHand.setLayoutType(Controls.PanelCtrl.LayoutType.RELATIVE);
+        minuteHand.setX(Controls.Control.CENTER);
         minuteHand.setY(clockEl.getHeight() / 2 - minuteHand.getHeight() / 2);
-        minuteHand.setElements(new ArrayList<>());
-        clockEl.getElements().add(minuteHand);
+        minuteHand.setControls(new ArrayList<>());
+        clockEl.getControls().add(minuteHand);
 
-        Elements.PanelEl minuteHalfHand = new Elements.PanelEl();
+        Controls.PanelCtrl minuteHalfHand = new Controls.PanelCtrl();
         minuteHalfHand.setWidth(minuteHand.getWidth() / 2);
-        minuteHalfHand.setHeight(Elements.Element.MATCH_PARENT);
-        minuteHalfHand.setLayoutType(Elements.PanelEl.LayoutType.RELATIVE);
+        minuteHalfHand.setHeight(Controls.Control.MATCH_PARENT);
+        minuteHalfHand.setLayoutType(Controls.PanelCtrl.LayoutType.RELATIVE);
         minuteHalfHand.setBackColor(colorBlue);
         minuteHalfHand.setX(minuteHand.getWidth() / 2);
-        minuteHalfHand.setElements(new ArrayList<>());
+        minuteHalfHand.setControls(new ArrayList<>());
         minuteHalfHand.setCornerRadius(4);
-        minuteHand.getElements().add(minuteHalfHand);
+        minuteHand.getControls().add(minuteHalfHand);
 
-        Elements.PanelEl calUp = new Elements.PanelEl();
+        Controls.PanelCtrl calUp = new Controls.PanelCtrl();
         calUp.setWidth(300);
         calUp.setHeight(72);
-        calUp.setX(Elements.Element.CENTER);
-        calUp.setLayoutType(Elements.PanelEl.LayoutType.RELATIVE);
-        calUp.setElements(new ArrayList<>());
+        calUp.setX(Controls.Control.CENTER);
+        calUp.setLayoutType(Controls.PanelCtrl.LayoutType.RELATIVE);
+        calUp.setControls(new ArrayList<>());
         calUp.setElevation(8);
         calUp.setMarginTop(56);
-        containerEl.getElements().add(calUp);
+        containerEl.getControls().add(calUp);
 
-        Elements.PanelEl calUp1 = new Elements.PanelEl();
+        Controls.PanelCtrl calUp1 = new Controls.PanelCtrl();
         calUp1.setWidth(16);
         calUp1.setHeight(72);
-        calUp1.setLayoutType(Elements.PanelEl.LayoutType.RELATIVE);
+        calUp1.setLayoutType(Controls.PanelCtrl.LayoutType.RELATIVE);
         calUp1.setBackColor(colorBlue);
         calUp1.setX(56);
         calUp1.setCornerRadius(4);
-        calUp1.setElements(new ArrayList<>());
-        calUp.getElements().add(calUp1);
+        calUp1.setControls(new ArrayList<>());
+        calUp.getControls().add(calUp1);
 
-        Elements.PanelEl calUp2 = new Elements.PanelEl();
+        Controls.PanelCtrl calUp2 = new Controls.PanelCtrl();
         calUp2.setWidth(16);
         calUp2.setHeight(112);
-        calUp2.setLayoutType(Elements.PanelEl.LayoutType.RELATIVE);
+        calUp2.setLayoutType(Controls.PanelCtrl.LayoutType.RELATIVE);
         calUp2.setBackColor(colorBlue);
         calUp2.setX(calUp.getWidth() - 56 - calUp2.getWidth());
         calUp2.setCornerRadius(4);
-        calUp2.setElements(new ArrayList<>());
-        calUp.getElements().add(calUp2);
+        calUp2.setControls(new ArrayList<>());
+        calUp.getControls().add(calUp2);
 
-        Elements.PanelEl calBox = new Elements.PanelEl();
+        Controls.PanelCtrl calBox = new Controls.PanelCtrl();
         calBox.setWidth(300);
         calBox.setHeight(328);
         calBox.setMarginTop(-36);
         calBox.setBackColor(colorDarkLight);
         calBox.setCornerRadius(16);
-        calBox.setX(Elements.Element.CENTER);
-        calBox.setLayoutType(Elements.PanelEl.LayoutType.RELATIVE);
-        calBox.setElements(new ArrayList<>());
-        containerEl.getElements().add(calBox);
+        calBox.setX(Controls.Control.CENTER);
+        calBox.setLayoutType(Controls.PanelCtrl.LayoutType.RELATIVE);
+        calBox.setControls(new ArrayList<>());
+        containerEl.getControls().add(calBox);
 
-        Elements.PanelEl innerCalBox = new Elements.PanelEl();
+        Controls.PanelCtrl innerCalBox = new Controls.PanelCtrl();
         innerCalBox.setWidth(280);
-        innerCalBox.setHeight(Elements.Element.MATCH_PARENT);
-        innerCalBox.setLayoutType(Elements.PanelEl.LayoutType.RELATIVE);
-        innerCalBox.setElements(new ArrayList<>());
+        innerCalBox.setHeight(Controls.Control.MATCH_PARENT);
+        innerCalBox.setLayoutType(Controls.PanelCtrl.LayoutType.RELATIVE);
+        innerCalBox.setControls(new ArrayList<>());
         innerCalBox.setMarginTop(40);
-        innerCalBox.setX(Elements.Element.CENTER);
-        calBox.getElements().add(innerCalBox);
+        innerCalBox.setX(Controls.Control.CENTER);
+        calBox.getControls().add(innerCalBox);
 
-        Elements.TextEl dateEl = new Elements.TextEl();
-        dateEl.setWidth(Elements.Element.WRAP_CONTENT);
-        dateEl.setHeight(Elements.Element.WRAP_CONTENT);
+        Controls.TextCtrl dateEl = new Controls.TextCtrl();
+        dateEl.setWidth(Controls.Control.WRAP_CONTENT);
+        dateEl.setHeight(Controls.Control.WRAP_CONTENT);
         dateEl.setText("January 2019");
         dateEl.setTextSize(20);
         dateEl.setTextColor(colorBlue);
         dateEl.setY(8);
-        dateEl.setX(Elements.Element.CENTER);
-        innerCalBox.getElements().add(dateEl);
+        dateEl.setX(Controls.Control.CENTER);
+        innerCalBox.getControls().add(dateEl);
 
         String[] dayNames = new String[]{
                 "Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"
         };
 
         for (int counter = 0; counter < 7; counter++) {
-            Elements.TextEl textEl = new Elements.TextEl();
-            textEl.setText(dayNames[counter]);
-            textEl.setWidth(40);
-            textEl.setHeight(32);
-            textEl.setTextColor(colorBlue);
-            textEl.setTextSize(16);
-            textEl.setGravityType(Elements.TextEl.GravityType.CENTER);
-            textEl.setX(counter * 40);
-            textEl.setY(48);
-            innerCalBox.getElements().add(textEl);
+            Controls.TextCtrl textCtrl = new Controls.TextCtrl();
+            textCtrl.setText(dayNames[counter]);
+            textCtrl.setWidth(40);
+            textCtrl.setHeight(32);
+            textCtrl.setTextColor(colorBlue);
+            textCtrl.setTextSize(16);
+            textCtrl.setGravityType(Controls.TextCtrl.GravityType.CENTER);
+            textCtrl.setX(counter * 40);
+            textCtrl.setY(48);
+            innerCalBox.getControls().add(textCtrl);
         }
 
         String[] dayNums = new String[6 * 7];
@@ -261,42 +264,42 @@ public class MainActivity extends AppCompatActivity {
 
         for (int counter = 0; counter < 6; counter++) {
             for (int inCounter = 0; inCounter < 7; inCounter++) {
-                Elements.TextEl textEl = new Elements.TextEl();
-                textEl.setWidth(40);
-                textEl.setHeight(32);
-                textEl.setText(dayNums[counter * 7 + inCounter]);
-                textEl.setGravityType(Elements.TextEl.GravityType.CENTER);
+                Controls.TextCtrl textCtrl = new Controls.TextCtrl();
+                textCtrl.setWidth(40);
+                textCtrl.setHeight(32);
+                textCtrl.setText(dayNums[counter * 7 + inCounter]);
+                textCtrl.setGravityType(Controls.TextCtrl.GravityType.CENTER);
                 if (counter == 0 && (inCounter == 0 || inCounter == 1))
-                    textEl.setTextColor("#555555");
+                    textCtrl.setTextColor("#555555");
                 else if (counter == 4 && (inCounter == 5 || inCounter == 6))
-                    textEl.setTextColor("#555555");
+                    textCtrl.setTextColor("#555555");
                 else if (counter == 5)
-                    textEl.setTextColor("#555555");
+                    textCtrl.setTextColor("#555555");
                 else
-                    textEl.setTextColor(colorBlue);
-                if (textEl.getText().equals("27")) {
-                    textEl.setBorderColor(colorBlue);
-                    textEl.setBorderWidth(2);
-                    textEl.setCornerRadius(4);
-                    textEl.setBackColor(colorDarkLight);
+                    textCtrl.setTextColor(colorBlue);
+                if (textCtrl.getText().equals("27")) {
+                    textCtrl.setBorderColor(colorBlue);
+                    textCtrl.setBorderWidth(2);
+                    textCtrl.setCornerRadius(4);
+                    textCtrl.setBackColor(colorDarkLight);
                 }
-                textEl.setTextSize(16);
-                textEl.setX(inCounter * 40);
-                textEl.setY(counter * 32 + 32 + 48);
-                innerCalBox.getElements().add(textEl);
+                textCtrl.setTextSize(16);
+                textCtrl.setX(inCounter * 40);
+                textCtrl.setY(counter * 32 + 32 + 48);
+                innerCalBox.getControls().add(textCtrl);
             }
         }
 
-        Elements.LineChartEl lineChartEl = new Elements.LineChartEl();
-        lineChartEl.setWidth(300);
-        lineChartEl.setHeight(260);
-        lineChartEl.setLabelsColor(colorBlue);
-        lineChartEl.setAxisColor(colorBlue);
-        lineChartEl.setDotsColor(colorBlue);
-        lineChartEl.setLineColor(colorBlue);
-        lineChartEl.setLineThickness(2);
-        lineChartEl.setDotsRadius(4);
-        lineChartEl.setFillColor(colorDarkLight);
+        Controls.LineChartCtrl lineChartCtrl = new Controls.LineChartCtrl();
+        lineChartCtrl.setWidth(300);
+        lineChartCtrl.setHeight(260);
+        lineChartCtrl.setLabelsColor(colorBlue);
+        lineChartCtrl.setAxisColor(colorBlue);
+        lineChartCtrl.setDotsColor(colorBlue);
+        lineChartCtrl.setLineColor(colorBlue);
+        lineChartCtrl.setLineThickness(2);
+        lineChartCtrl.setDotsRadius(4);
+        lineChartCtrl.setFillColor(colorDarkLight);
 
         List<Data.Point> points = new ArrayList<>();
         Random random = new Random();
@@ -310,27 +313,151 @@ public class MainActivity extends AppCompatActivity {
             points.add(point);
         }
 
-        lineChartEl.setPoints(points);
-        lineChartEl.setX(Elements.Element.CENTER);
-        lineChartEl.setMarginTop(56);
-        containerEl.getElements().add(lineChartEl);
+        lineChartCtrl.setPoints(points);
+        lineChartCtrl.setX(Controls.Control.CENTER);
+        lineChartCtrl.setMarginTop(56);
+        containerEl.getControls().add(lineChartCtrl);
 
-        Elements.VideoPlayerEl videoPlayerEl = new Elements.VideoPlayerEl();
-        videoPlayerEl.setWidth(300);
-        videoPlayerEl.setHeight(260);
-        videoPlayerEl.setVideoUrl("https://archive.org/download/Popeye_forPresident/Popeye_forPresident_512kb.mp4");
-        videoPlayerEl.setX(Elements.Element.CENTER);
-        videoPlayerEl.setMarginTop(56);
-        videoPlayerEl.setMarginBottom(56);
-        containerEl.getElements().add(videoPlayerEl);
+        Controls.VideoPlayerCtrl videoPlayerCtrl = new Controls.VideoPlayerCtrl();
+        videoPlayerCtrl.setWidth(300);
+        videoPlayerCtrl.setHeight(260);
+        videoPlayerCtrl.setVideoUrl("https://archive.org/download/Popeye_forPresident/Popeye_forPresident_512kb.mp4");
+        videoPlayerCtrl.setX(Controls.Control.CENTER);
+        videoPlayerCtrl.setMarginTop(56);
+        containerEl.getControls().add(videoPlayerCtrl);
+
+        Controls.DropDownCtrl dropDownCtrl = new Controls.DropDownCtrl();
+        dropDownCtrl.setWidth(300);
+        dropDownCtrl.setHeight(56);
+        dropDownCtrl.setMarginTop(56);
+        dropDownCtrl.setX(Controls.Control.CENTER);
+        dropDownCtrl.setBackColor(colorDarkDark);
+        dropDownCtrl.setCornerRadius(16);
+        dropDownCtrl.setItems(new ArrayList<>());
+        for (int counter = 0; counter < 5; counter++) {
+            Controls.TextCtrl item = new Controls.TextCtrl();
+            item.setWidth(Controls.Control.MATCH_PARENT);
+            item.setHeight(56);
+            item.setGravityType(Controls.TextCtrl.GravityType.CENTER);
+            item.setTextColor(colorBlue);
+            item.setBackColor(colorDarkLight);
+            item.setTextSize(18);
+            item.setText("Item " + counter);
+            dropDownCtrl.getItems().add(item);
+        }
+        Controls.ImageCtrl itemImage = new Controls.ImageCtrl();
+        itemImage.setScaleType(Controls.ImageCtrl.ImageScaleType.CENTER_CROP);
+        itemImage.setWidth(200);
+        itemImage.setHeight(200);
+        itemImage.setX(Controls.Control.CENTER);
+        itemImage.setImageUrl("https://quera.ir/media/CACHE/images/public/avatars/dbb966f617244cd8beb7a7bca29fa2c5/4ea69e7d275c233761a727dfb97e4fc1.jpg");
+        dropDownCtrl.getItems().add(itemImage);
+        for (int counter = 5; counter < 10; counter++) {
+            Controls.TextCtrl item = new Controls.TextCtrl();
+            item.setWidth(Controls.Control.MATCH_PARENT);
+            item.setHeight(56);
+            item.setGravityType(Controls.TextCtrl.GravityType.CENTER);
+            item.setTextColor(colorBlue);
+            item.setBackColor(colorDarkLight);
+            item.setTextSize(18);
+            item.setText("Item " + counter);
+            dropDownCtrl.getItems().add(item);
+        }
+
+        containerEl.getControls().add(dropDownCtrl);
+
+        Controls.CheckCtrl checkCtrl = new Controls.CheckCtrl();
+        checkCtrl.setCaption("Keyhan");
+        checkCtrl.setWidth(Controls.Control.WRAP_CONTENT);
+        checkCtrl.setHeight(Controls.Control.WRAP_CONTENT);
+        checkCtrl.setX(Controls.Control.CENTER);
+        checkCtrl.setCaptionColor(colorBlue);
+        checkCtrl.setMarginTop(56);
+        checkCtrl.setTintColor(colorBlue);
+        containerEl.getControls().add(checkCtrl);
+
+        Controls.OptionCtrl optionCtrl = new Controls.OptionCtrl();
+        optionCtrl.setCaption("Keyhan");
+        optionCtrl.setWidth(Controls.Control.WRAP_CONTENT);
+        optionCtrl.setHeight(Controls.Control.WRAP_CONTENT);
+        optionCtrl.setX(Controls.Control.CENTER);
+        optionCtrl.setCaptionColor(colorBlue);
+        optionCtrl.setMarginTop(56);
+        optionCtrl.setTintColor(colorBlue);
+        containerEl.getControls().add(optionCtrl);
+
+        Controls.RecyclerListCtrl recyclerListCtrl = new Controls.RecyclerListCtrl();
+        recyclerListCtrl.setWidth(300);
+        recyclerListCtrl.setHeight(400);
+        recyclerListCtrl.setMarginTop(56);
+        recyclerListCtrl.setMarginBottom(300);
+        recyclerListCtrl.setX(Controls.Control.CENTER);
+        recyclerListCtrl.setBackColor(colorDarkDark);
+        recyclerListCtrl.setCornerRadius(16);
+        recyclerListCtrl.setOrientation(Controls.RecyclerListCtrl.RecyclerOrientation.VERTICAL);
+        recyclerListCtrl.setRecyclerType(Controls.RecyclerListCtrl.RecyclerLayoutType.GRID);
+        recyclerListCtrl.setGridSpanCount(2);
+        recyclerListCtrl.setItems(new ArrayList<>());
+        for (int counter = 0; counter < 5; counter++) {
+            Controls.TextCtrl item = new Controls.TextCtrl();
+            item.setWidth(Controls.Control.MATCH_PARENT);
+            item.setHeight(56);
+            item.setGravityType(Controls.TextCtrl.GravityType.CENTER);
+            item.setTextColor(colorBlue);
+            item.setBackColor(colorDarkLight);
+            item.setTextSize(18);
+            item.setText("Item " + counter);
+            recyclerListCtrl.getItems().add(item);
+        }
+        Controls.ImageCtrl rItemImage = new Controls.ImageCtrl();
+        rItemImage.setScaleType(Controls.ImageCtrl.ImageScaleType.CENTER_CROP);
+        rItemImage.setWidth(200);
+        rItemImage.setHeight(200);
+        rItemImage.setX(Controls.Control.CENTER);
+        rItemImage.setImageUrl("https://quera.ir/media/CACHE/images/public/avatars/dbb966f617244cd8beb7a7bca29fa2c5/4ea69e7d275c233761a727dfb97e4fc1.jpg");
+        recyclerListCtrl.getItems().add(rItemImage);
+        for (int counter = 5; counter < 10; counter++) {
+            Controls.TextCtrl item = new Controls.TextCtrl();
+            item.setWidth(Controls.Control.MATCH_PARENT);
+            item.setHeight(56);
+            item.setGravityType(Controls.TextCtrl.GravityType.CENTER);
+            item.setTextColor(colorBlue);
+            item.setBackColor(colorDarkLight);
+            item.setTextSize(18);
+            item.setText("Item " + counter);
+            recyclerListCtrl.getItems().add(item);
+        }
+
+        containerEl.getControls().add(recyclerListCtrl);
+
+        PulseView pulseView = findViewById(R.id.pulseView);
 
         try {
-            String json = new ObjectMapper().writeValueAsString(scrollerEl);
+            String json = new ObjectMapper().writeValueAsString(scrollerCtrl);
             Log.d("Pulse", json);
-            PulseView pulseView = findViewById(R.id.pulseView);
             pulseView.buildUi(json);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Updates.ControlUpdateMarginTop updateMarginTop = new Updates.ControlUpdateMarginTop();
+                updateMarginTop.setControlId("WelcomeMessageEl");
+                updateMarginTop.setValue(224);
+                pulseView.updateUi(updateMarginTop);
+
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Updates.ControlUpdateHeight updateHeight = new Updates.ControlUpdateHeight();
+                        updateHeight.setControlId("WelcomeMessageEl");
+                        updateHeight.setValue(200);
+                        pulseView.updateUi(updateHeight);
+                    }
+                }, 3000);
+            }
+        }, 3000);
     }
 }
