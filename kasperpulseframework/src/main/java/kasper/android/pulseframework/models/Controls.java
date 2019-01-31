@@ -34,10 +34,9 @@ public class Controls {
     })
     public static class Control {
 
-        public static int MATCH_PARENT = -1;
-        public static int WRAP_CONTENT = -2;
-
-        public static int CENTER = -1;
+        public static final int MATCH_PARENT = -1;
+        public static final int WRAP_CONTENT = -2;
+        public static final int CENTER = -1;
 
         private String id;
         private int width;
@@ -50,7 +49,10 @@ public class Controls {
         private int rotationX;
         private int rotationY;
         private int rotation;
-        private int cornerRadius;
+        private int topLeftRadius;
+        private int topRightRadius;
+        private int bottomLeftRadius;
+        private int bottomRightRadius;
         private int marginLeft;
         private int marginTop;
         private int marginRight;
@@ -60,6 +62,7 @@ public class Controls {
         private int paddingRight;
         private int paddingBottom;
         private int elevation;
+        private boolean noShadow;
 
         public String getId() {
             return id;
@@ -149,28 +152,36 @@ public class Controls {
             this.rotation = rotation;
         }
 
-        public int getCornerRadius() {
-            return cornerRadius;
+        public int getTopLeftRadius() {
+            return topLeftRadius;
         }
 
-        public void setCornerRadius(int cornerRadius) {
-            this.cornerRadius = cornerRadius;
+        public void setTopLeftRadius(int topLeftRadius) {
+            this.topLeftRadius = topLeftRadius;
         }
 
-        public static int getMatchParent() {
-            return MATCH_PARENT;
+        public int getTopRightRadius() {
+            return topRightRadius;
         }
 
-        public static void setMatchParent(int matchParent) {
-            MATCH_PARENT = matchParent;
+        public void setTopRightRadius(int topRightRadius) {
+            this.topRightRadius = topRightRadius;
         }
 
-        public static int getWrapContent() {
-            return WRAP_CONTENT;
+        public int getBottomLeftRadius() {
+            return bottomLeftRadius;
         }
 
-        public static void setWrapContent(int wrapContent) {
-            WRAP_CONTENT = wrapContent;
+        public void setBottomLeftRadius(int bottomLeftRadius) {
+            this.bottomLeftRadius = bottomLeftRadius;
+        }
+
+        public int getBottomRightRadius() {
+            return bottomRightRadius;
+        }
+
+        public void setBottomRightRadius(int bottomRightRadius) {
+            this.bottomRightRadius = bottomRightRadius;
         }
 
         public int getMarginLeft() {
@@ -243,6 +254,21 @@ public class Controls {
 
         public void setElevation(int elevation) {
             this.elevation = elevation;
+        }
+
+        public boolean isNoShadow() {
+            return noShadow;
+        }
+
+        public void setNoShadow(boolean noShadow) {
+            this.noShadow = noShadow;
+        }
+
+        public void setCornerRadius(int radius) {
+            this.topLeftRadius = radius;
+            this.topRightRadius = radius;
+            this.bottomLeftRadius = radius;
+            this.bottomRightRadius = radius;
         }
     }
 

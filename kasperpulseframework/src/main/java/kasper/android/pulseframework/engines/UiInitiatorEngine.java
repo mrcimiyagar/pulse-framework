@@ -1,4 +1,4 @@
-package kasper.android.pulseframework.engine;
+package kasper.android.pulseframework.engines;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -39,6 +39,7 @@ import com.db.chart.view.HorizontalBarChartView;
 import com.db.chart.view.HorizontalStackBarChartView;
 import com.db.chart.view.LineChartView;
 import com.db.chart.view.StackBarChartView;
+import com.github.florent37.shapeofview.shapes.RoundRectView;
 import com.moos.library.CircleProgressView;
 import com.moos.library.HorizontalProgressView;
 
@@ -52,18 +53,19 @@ import java.util.TimerTask;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import kasper.android.pulseframework.components.RoundRectViewEdited;
 import kasper.android.pulseframework.models.Data;
 import kasper.android.pulseframework.models.Controls;
 import kasper.android.pulseframework.models.Tuple;
 import kasper.android.pulseframework.utils.GraphicsHelper;
 import tcking.github.com.giraffeplayer2.VideoView;
 
-public class UiEngine {
+public class UiInitiatorEngine {
 
     private Context context;
     private String appName;
 
-    public UiEngine(Context context, String appName) {
+    public UiInitiatorEngine(Context context, String appName) {
         this.context = context;
         this.appName = appName;
     }
@@ -289,54 +291,7 @@ public class UiEngine {
         } else if (control instanceof Controls.LineChartCtrl) {
             Controls.LineChartCtrl chartEl = (Controls.LineChartCtrl) control;
             LineChartView lineChartView = new LineChartView(context);
-            LineSet dataset = new LineSet();
-            for (Data.Point point : chartEl.getPoints()) {
-                dataset.addPoint(point.getLabel(), point.getValue());
-            }
-            if (!isFieldEmpty(chartEl.getDotsColor()))
-                dataset.setDotsColor(Color.parseColor(chartEl.getDotsColor()));
-            if (!isFieldEmpty(chartEl.getDotsRadius()))
-                dataset.setDotsRadius(GraphicsHelper.dpToPx(chartEl.getDotsRadius()));
-            if (!isFieldEmpty(chartEl.getDotsStrokeThickness()))
-                dataset.setDotsStrokeThickness(GraphicsHelper.dpToPx(chartEl.getDotsStrokeThickness()));
-            if (!isFieldEmpty(chartEl.getDotsStrokeColor()))
-                dataset.setDotsStrokeColor(Color.parseColor(chartEl.getDotsStrokeColor()));
-            if (!isFieldEmpty(chartEl.getLineDashedIntervals())) {
-                float[] lineDashedIntervals = new float[chartEl.getLineDashedIntervals().size()];
-                int counter = 0;
-                for (Data.FloatValue floatValue : chartEl.getLineDashedIntervals()) {
-                    lineDashedIntervals[counter] = floatValue.getValue();
-                    counter++;
-                }
-                dataset.setDashed(lineDashedIntervals);
-            }
-            dataset.setSmooth(chartEl.isLineSmooth());
-            if (!isFieldEmpty(chartEl.getLineThickness()))
-                dataset.setThickness(GraphicsHelper.dpToPx(chartEl.getLineThickness()));
-            if (!isFieldEmpty(chartEl.getLineColor()))
-                dataset.setColor(Color.parseColor(chartEl.getLineColor()));
-            if (!(chartEl.getLineBeginAt() == 0 && chartEl.getLineEndAt() == 0)) {
-                dataset.beginAt(chartEl.getLineBeginAt());
-                dataset.endAt(chartEl.getLineEndAt());
-            }
-            if (!isFieldEmpty(chartEl.getFillColor()))
-                dataset.setFill(Color.parseColor(chartEl.getFillColor()));
-            if (!isFieldEmpty(chartEl.getGradientColors())) {
-                int[] gradientColors = new int[chartEl.getGradientColors().size()];
-                float[] gradientValues = new float[chartEl.getGradientValues().size()];
-                int counter = 0;
-                Iterator<Data.StringValue> colorIterator = chartEl.getGradientColors().iterator();
-                Iterator<Data.FloatValue> valueIterator = chartEl.getGradientValues().iterator();
-                while (colorIterator.hasNext() && valueIterator.hasNext()) {
-                    Data.StringValue color = colorIterator.next();
-                    Data.FloatValue value = valueIterator.next();
-                    gradientColors[counter] = Color.parseColor(color.getValue());
-                    gradientValues[counter] = value.getValue();
-                    counter++;
-                }
-                if (gradientColors.length > 0)
-                    dataset.setGradientFill(gradientColors, gradientValues);
-            }
+            LineSet dataset = initLineChartView((Controls.LineChartCtrl) control);
             lineChartView.addData(dataset);
             if (!isFieldEmpty(chartEl.getAxisColor()))
                 lineChartView.setAxisColor(Color.parseColor(chartEl.getAxisColor()));
@@ -726,57 +681,25 @@ public class UiEngine {
                     GraphicsHelper.dpToPx(el.getPaddingTop()),
                     GraphicsHelper.dpToPx(el.getPaddingRight()),
                     GraphicsHelper.dpToPx(el.getPaddingBottom()));
-        if (!isFieldEmpty(el.getBorderColor())) {
-            CardView outerCV = new CardView(context);
-            outerCV.setCardBackgroundColor(Color.parseColor(el.getBorderColor()));
-            CardView innerCV = new CardView(context);
-            if (!isFieldEmpty(el.getBackColor()))
-                innerCV.setCardBackgroundColor(Color.parseColor(el.getBackColor()));
-            outerCV.addView(innerCV);
-            CardView.LayoutParams cvlp = new CardView.LayoutParams(
-                    CardView.LayoutParams.MATCH_PARENT,
-                    CardView.LayoutParams.MATCH_PARENT);
-            int bw = GraphicsHelper.dpToPx(1);
-            if (!isFieldEmpty(el.getBorderWidth()))
-                bw = GraphicsHelper.dpToPx(el.getBorderWidth());
-            cvlp.setMargins(bw, bw, bw, bw);
-            innerCV.setLayoutParams(cvlp);
-            innerCV.addView(view);
-            cvlp = new CardView.LayoutParams(
-                    CardView.LayoutParams.MATCH_PARENT,
-                    CardView.LayoutParams.MATCH_PARENT);
-            view.setLayoutParams(cvlp);
-            view = outerCV;
-        } else {
-            if (!isFieldEmpty(el.getBackColor())) {
-                if (view instanceof CardView)
-                    ((CardView) view).setCardBackgroundColor(Color.parseColor(el.getBackColor()));
-                else
-                    view.setBackgroundColor(Color.parseColor(el.getBackColor()));
-            }
-        }
 
-        if (!isFieldEmpty(el.getCornerRadius())) {
-            if (!(view instanceof CardView)) {
-                CardView cardView = new CardView(context);
-                cardView.addView(view);
-                CardView.LayoutParams cvlp = new CardView.LayoutParams(
-                        CardView.LayoutParams.MATCH_PARENT,
-                        CardView.LayoutParams.MATCH_PARENT);
-                view.setLayoutParams(cvlp);
-                view = cardView;
-            } else {
-                if (((CardView) view).getChildAt(0) instanceof CardView) {
-                    ((CardView)((CardView) view).getChildAt(0))
-                            .setRadius(GraphicsHelper.dpToPx(el.getCornerRadius()));
-                }
-            }
-            ((CardView)view).setRadius(GraphicsHelper.dpToPx(el.getCornerRadius()));
-        }
-        if (view instanceof CardView)
-            ((CardView) view).setCardElevation(el.getElevation());
-        else
-            view.setElevation(el.getElevation());
+        if (!isFieldEmpty(el.getBackColor()))
+            view.setBackgroundColor(Color.parseColor(el.getBackColor()));
+
+        RoundRectViewEdited roundRectView = new RoundRectViewEdited(context, el.isNoShadow());
+        if (!isFieldEmpty(el.getBorderColor()))
+            roundRectView.setBorderColor(Color.parseColor(el.getBorderColor()));
+        roundRectView.setBorderWidth(GraphicsHelper.dpToPx(el.getBorderWidth()));
+        roundRectView.setTopLeftRadius(GraphicsHelper.dpToPx(el.getTopLeftRadius()));
+        roundRectView.setTopRightRadius(GraphicsHelper.dpToPx(el.getTopRightRadius()));
+        roundRectView.setBottomLeftRadius(GraphicsHelper.dpToPx(el.getBottomLeftRadius()));
+        roundRectView.setBottomRightRadius(GraphicsHelper.dpToPx(el.getBottomRightRadius()));
+        if (isFieldEmpty(el.getBackColor()))
+            roundRectView.setBackgroundColor(Color.TRANSPARENT);
+        roundRectView.addView(view);
+        view = roundRectView;
+
+        view.setElevation(el.getElevation());
+
         ViewGroup.LayoutParams mlp = null;
         if (parentLayoutType == Controls.PanelCtrl.LayoutType.RELATIVE) {
             mlp = new RelativeLayout.LayoutParams(0, 0);
@@ -848,6 +771,58 @@ public class UiEngine {
         view.setRotation(el.getRotation());
 
         return view;
+    }
+
+    LineSet initLineChartView(Controls.LineChartCtrl chartEl) {
+        LineSet dataset = new LineSet();
+        for (Data.Point point : chartEl.getPoints()) {
+            dataset.addPoint(point.getLabel(), point.getValue());
+        }
+        if (!isFieldEmpty(chartEl.getDotsColor()))
+            dataset.setDotsColor(Color.parseColor(chartEl.getDotsColor()));
+        if (!isFieldEmpty(chartEl.getDotsRadius()))
+            dataset.setDotsRadius(GraphicsHelper.dpToPx(chartEl.getDotsRadius()));
+        if (!isFieldEmpty(chartEl.getDotsStrokeThickness()))
+            dataset.setDotsStrokeThickness(GraphicsHelper.dpToPx(chartEl.getDotsStrokeThickness()));
+        if (!isFieldEmpty(chartEl.getDotsStrokeColor()))
+            dataset.setDotsStrokeColor(Color.parseColor(chartEl.getDotsStrokeColor()));
+        if (!isFieldEmpty(chartEl.getLineDashedIntervals())) {
+            float[] lineDashedIntervals = new float[chartEl.getLineDashedIntervals().size()];
+            int counter = 0;
+            for (Data.FloatValue floatValue : chartEl.getLineDashedIntervals()) {
+                lineDashedIntervals[counter] = floatValue.getValue();
+                counter++;
+            }
+            dataset.setDashed(lineDashedIntervals);
+        }
+        dataset.setSmooth(chartEl.isLineSmooth());
+        if (!isFieldEmpty(chartEl.getLineThickness()))
+            dataset.setThickness(GraphicsHelper.dpToPx(chartEl.getLineThickness()));
+        if (!isFieldEmpty(chartEl.getLineColor()))
+            dataset.setColor(Color.parseColor(chartEl.getLineColor()));
+        if (!(chartEl.getLineBeginAt() == 0 && chartEl.getLineEndAt() == 0)) {
+            dataset.beginAt(chartEl.getLineBeginAt());
+            dataset.endAt(chartEl.getLineEndAt());
+        }
+        if (!isFieldEmpty(chartEl.getFillColor()))
+            dataset.setFill(Color.parseColor(chartEl.getFillColor()));
+        if (!isFieldEmpty(chartEl.getGradientColors())) {
+            int[] gradientColors = new int[chartEl.getGradientColors().size()];
+            float[] gradientValues = new float[chartEl.getGradientValues().size()];
+            int counter = 0;
+            Iterator<Data.StringValue> colorIterator = chartEl.getGradientColors().iterator();
+            Iterator<Data.FloatValue> valueIterator = chartEl.getGradientValues().iterator();
+            while (colorIterator.hasNext() && valueIterator.hasNext()) {
+                Data.StringValue color = colorIterator.next();
+                Data.FloatValue value = valueIterator.next();
+                gradientColors[counter] = Color.parseColor(color.getValue());
+                gradientValues[counter] = value.getValue();
+                counter++;
+            }
+            if (gradientColors.length > 0)
+                dataset.setGradientFill(gradientColors, gradientValues);
+        }
+        return dataset;
     }
 
     private boolean isFieldEmpty(String input) {

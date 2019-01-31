@@ -1,5 +1,6 @@
 package kasper.android.pulseframeworkproject;
 
+import android.graphics.Color;
 import android.os.Handler;
 import android.os.Bundle;
 import android.util.Log;
@@ -181,8 +182,9 @@ public class MainActivity extends AppCompatActivity {
         calUp.setX(Controls.Control.CENTER);
         calUp.setLayoutType(Controls.PanelCtrl.LayoutType.RELATIVE);
         calUp.setControls(new ArrayList<>());
-        calUp.setElevation(8);
         calUp.setMarginTop(56);
+        calUp.setElevation(8);
+        calUp.setNoShadow(true);
         containerEl.getControls().add(calUp);
 
         Controls.PanelCtrl calUp1 = new Controls.PanelCtrl();
@@ -291,6 +293,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         Controls.LineChartCtrl lineChartCtrl = new Controls.LineChartCtrl();
+        lineChartCtrl.setId("LineChartEl");
         lineChartCtrl.setWidth(300);
         lineChartCtrl.setHeight(260);
         lineChartCtrl.setLabelsColor(colorBlue);
@@ -455,6 +458,16 @@ public class MainActivity extends AppCompatActivity {
                         updateHeight.setControlId("WelcomeMessageEl");
                         updateHeight.setValue(200);
                         pulseView.updateUi(updateHeight);
+
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                Updates.LineChartCtrlUpdateLineColor updateLineColor = new Updates.LineChartCtrlUpdateLineColor();
+                                updateLineColor.setControlId("LineChartEl");
+                                updateLineColor.setValue("#00ff00");
+                                pulseView.updateUi(updateLineColor);
+                            }
+                        }, 3000);
                     }
                 }, 3000);
             }
