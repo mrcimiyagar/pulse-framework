@@ -39,6 +39,5 @@ add library dependency to app level build.gradle :
   [ProgressView](https://github.com/Moosphan/Material-ProgressView)</br>
   [GiraffePlayer2](https://github.com/tcking/GiraffePlayer2)</br>
   [ijkplayer](https://github.com/bilibili/ijkplayer)</br>
-  [ShapeOfView](https://github.com/florent37/ShapeOfView)</br>
   [WilliamChart](https://github.com/diogobernardino/WilliamChart)</br>
   
