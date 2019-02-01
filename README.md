@@ -34,9 +34,11 @@ add library dependency to app level build.gradle :
 
 ## Used Libraries :
 
-  [Jackson](https://github.com/FasterXML/jackson)
-  [Glide](https://github.com/bumptech/glide)
-  [ProgressView](https://github.com/Moosphan/Material-ProgressView)
-  [ExoPlayer](https://github.com/google/ExoPlayer)
-  [WilliamChart](https://github.com/diogobernardino/WilliamChart)
+  [Jackson](https://github.com/FasterXML/jackson)</br>
+  [Glide](https://github.com/bumptech/glide)</br>
+  [ProgressView](https://github.com/Moosphan/Material-ProgressView)</br>
+  [GiraffePlayer2](https://github.com/tcking/GiraffePlayer2)</br>
+  [ijkplayer](https://github.com/bilibili/ijkplayer)</br>
+  [ShapeOfView](https://github.com/florent37/ShapeOfView)</br>
+  [WilliamChart](https://github.com/diogobernardino/WilliamChart)</br>
   
