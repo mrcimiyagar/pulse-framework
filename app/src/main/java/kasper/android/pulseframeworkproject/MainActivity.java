@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
         profileImageCtrl.setScaleType(Controls.ImageCtrl.ImageScaleType.CENTER_CROP);
         profileImageCtrl.setCornerRadius(36);
         profileImageCtrl.setElevation(6);
-        profileImageCtrl.setImageUrl("https://quera.ir/media/CACHE/images/public/avatars/dbb966f617244cd8beb7a7bca29fa2c5/4ea69e7d275c233761a727dfb97e4fc1.jpg");
+        profileImageCtrl.setImageUrl("http://www.aljanh.net/data/archive/img/268021457.jpeg");
         welcomeMessageEl.getControls().add(profileImageCtrl);
 
         Controls.PanelCtrl welcomeTextsEl = new Controls.PanelCtrl();
@@ -183,7 +183,6 @@ public class MainActivity extends AppCompatActivity {
         calUp.setControls(new ArrayList<>());
         calUp.setMarginTop(56);
         calUp.setElevation(8);
-        calUp.setNoShadow(true);
         containerEl.getControls().add(calUp);
 
         Controls.PanelCtrl calUp1 = new Controls.PanelCtrl();
@@ -352,7 +351,7 @@ public class MainActivity extends AppCompatActivity {
         itemImage.setWidth(200);
         itemImage.setHeight(200);
         itemImage.setX(Controls.Control.CENTER);
-        itemImage.setImageUrl("https://quera.ir/media/CACHE/images/public/avatars/dbb966f617244cd8beb7a7bca29fa2c5/4ea69e7d275c233761a727dfb97e4fc1.jpg");
+        itemImage.setImageUrl("http://www.aljanh.net/data/archive/img/268021457.jpeg");
         dropDownCtrl.getItems().add(itemImage);
         for (int counter = 5; counter < 10; counter++) {
             Controls.TextCtrl item = new Controls.TextCtrl();
@@ -416,7 +415,7 @@ public class MainActivity extends AppCompatActivity {
         rItemImage.setWidth(200);
         rItemImage.setHeight(200);
         rItemImage.setX(Controls.Control.CENTER);
-        rItemImage.setImageUrl("https://quera.ir/media/CACHE/images/public/avatars/dbb966f617244cd8beb7a7bca29fa2c5/4ea69e7d275c233761a727dfb97e4fc1.jpg");
+        rItemImage.setImageUrl("http://www.aljanh.net/data/archive/img/268021457.jpeg");
         recyclerCtrl.getItems().add(rItemImage);
         for (int counter = 5; counter < 10; counter++) {
             Controls.TextCtrl item = new Controls.TextCtrl();
@@ -439,10 +438,11 @@ public class MainActivity extends AppCompatActivity {
         hrc.setItems(new ArrayList<>());
         for (int counter = 0; counter < 10; counter++) {
             Controls.ImageCtrl imageCtrl = new Controls.ImageCtrl();
+            imageCtrl.setId("Image" + counter);
             imageCtrl.setWidth(224);
             imageCtrl.setHeight(224);
             imageCtrl.setScaleType(Controls.ImageCtrl.ImageScaleType.CENTER_CROP);
-            imageCtrl.setImageUrl("https://quera.ir/media/CACHE/images/public/avatars/dbb966f617244cd8beb7a7bca29fa2c5/4ea69e7d275c233761a727dfb97e4fc1.jpg");
+            imageCtrl.setImageUrl("http://www.aljanh.net/data/archive/img/268021457.jpeg");
             hrc.getItems().add(imageCtrl);
         }
         recyclerCtrl.getItems().add(hrc);

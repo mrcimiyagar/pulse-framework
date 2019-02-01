@@ -29,7 +29,6 @@ import com.db.chart.model.BarSet;
 import com.db.chart.model.LineSet;
 import com.db.chart.view.BaseBarChartView;
 import com.db.chart.view.LineChartView;
-import com.github.florent37.shapeofview.shapes.RoundRectView;
 import com.moos.library.CircleProgressView;
 import com.moos.library.HorizontalProgressView;
 
@@ -38,6 +37,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
+import androidx.cardview.widget.CardView;
 import androidx.core.widget.CompoundButtonCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -58,12 +58,10 @@ public class UiUpdaterEngine {
     private static final String TAG = "KasperPulseFramework";
 
     private Context context;
-    private String appName;
     private IMainThreadRunner mainThreadRunner;
 
-    public UiUpdaterEngine(Context context, String appName, IMainThreadRunner mainThreadRunner) {
+    public UiUpdaterEngine(Context context, IMainThreadRunner mainThreadRunner) {
         this.context = context;
-        this.appName = appName;
         this.mainThreadRunner = mainThreadRunner;
     }
 
@@ -102,15 +100,20 @@ public class UiUpdaterEngine {
                 view.setY(((Updates.ControlUpdateY) update).getValue());
         } else if (update instanceof Updates.ControlUpdateBackColor) {
             control.setBackColor(((Updates.ControlUpdateBackColor) update).getValue());
-            View target = ((ViewGroup) view).getChildAt(0);
+            View target = getOrigin(view);
             target.setBackgroundColor(Color.parseColor(
                     ((Updates.ControlUpdateBackColor) update).getValue()));
         } if (update instanceof Updates.ControlUpdateBorderColor) {
             control.setBorderColor(((Updates.ControlUpdateBorderColor) update).getValue());
-            ((RoundRectView) view).setBorderColor(Color.parseColor(
+            ((CardView) view).setCardBackgroundColor(Color.parseColor(
                     ((Updates.ControlUpdateBorderColor) update).getValue()));
         } else if (update instanceof Updates.ControlUpdateBorderWidth) {
             control.setBorderWidth(((Updates.ControlUpdateBorderWidth) update).getValue());
+            CardView.LayoutParams params = (CardView.LayoutParams)
+                    ((ViewGroup) view).getChildAt(0).getLayoutParams();
+            int bw = GraphicsHelper.dpToPx(((Updates.ControlUpdateBorderWidth) update).getValue());
+            params.setMargins(bw, bw, bw, bw);
+            ((ViewGroup) view).getChildAt(0).setLayoutParams(params);
         } else if (update instanceof Updates.ControlUpdateRotationX) {
             control.setRotationX(((Updates.ControlUpdateRotationX) update).getValue());
             view.setRotationX(((Updates.ControlUpdateRotationX) update).getValue());
@@ -120,22 +123,12 @@ public class UiUpdaterEngine {
         } else if (update instanceof Updates.ControlUpdateRotation) {
             control.setRotation(((Updates.ControlUpdateRotation) update).getValue());
             view.setRotation(((Updates.ControlUpdateRotation) update).getValue());
-        } else if (update instanceof Updates.ControlUpdateTopLeftRadius) {
-            control.setTopLeftRadius(((Updates.ControlUpdateTopLeftRadius) update).getValue());
-            ((RoundRectView) view).setTopLeftRadius(
-                    ((Updates.ControlUpdateTopLeftRadius) update).getValue());
-        } else if (update instanceof Updates.ControlUpdateTopRightRadius) {
-            control.setTopLeftRadius(((Updates.ControlUpdateTopRightRadius) update).getValue());
-            ((RoundRectView) view).setTopRightRadius(
-                    ((Updates.ControlUpdateTopRightRadius) update).getValue());
-        } else if (update instanceof Updates.ControlUpdateBottomLeftRadius) {
-            control.setTopLeftRadius(((Updates.ControlUpdateBottomLeftRadius) update).getValue());
-            ((RoundRectView) view).setBottomLeftRadius(
-                    ((Updates.ControlUpdateBottomLeftRadius) update).getValue());
-        } else if (update instanceof Updates.ControlUpdateBottomRightRadius) {
-            control.setTopLeftRadius(((Updates.ControlUpdateBottomRightRadius) update).getValue());
-            ((RoundRectView) view).setBottomRightRadius(
-                    ((Updates.ControlUpdateBottomRightRadius) update).getValue());
+        } else if (update instanceof Updates.ControlUpdateCornerRadius) {
+            control.setCornerRadius(((Updates.ControlUpdateCornerRadius) update).getValue());
+            ((CardView) view).setRadius(GraphicsHelper.dpToPx(
+                    ((Updates.ControlUpdateCornerRadius) update).getValue()));
+            ((CardView)((ViewGroup) view).getChildAt(0)).setRadius(GraphicsHelper.dpToPx(
+                    ((Updates.ControlUpdateCornerRadius) update).getValue()));
         } else if (update instanceof Updates.ControlUpdateMarginLeft) {
             control.setMarginLeft(((Updates.ControlUpdateMarginLeft) update).getValue());
             ViewGroup.LayoutParams params = view.getLayoutParams();
@@ -254,7 +247,7 @@ public class UiUpdaterEngine {
                         ((Updates.PanelCtrlAddControl) update).getValue());
                 Tuple<View, List<Pair<Controls.Control, View>>
                         , Hashtable<String, Pair<Controls.Control, View>>> buildResult =
-                        new UiInitiatorEngine(context, appName, mainThreadRunner).buildViewTree(
+                        new UiInitiatorEngine(context, mainThreadRunner).buildViewTree(
                                 ((Controls.PanelCtrl) control).getLayoutType(),
                                 ((Updates.PanelCtrlAddControl) update).getValue());
                 idTable.putAll(buildResult.getItem3());
@@ -801,7 +794,7 @@ public class UiUpdaterEngine {
                 view = getOrigin(view);
                 LineChartView lineChartView = (LineChartView) view;
                 Controls.LineChartCtrl chartEl = (Controls.LineChartCtrl) control;
-                LineSet dataset = new UiInitiatorEngine(context, appName, mainThreadRunner)
+                LineSet dataset = new UiInitiatorEngine(context, mainThreadRunner)
                         .initLineChartView(chartEl);
                 lineChartView.getData().remove(0);
                 lineChartView.addData(dataset);

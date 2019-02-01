@@ -49,10 +49,7 @@ public class Controls {
         private int rotationX;
         private int rotationY;
         private int rotation;
-        private int topLeftRadius;
-        private int topRightRadius;
-        private int bottomLeftRadius;
-        private int bottomRightRadius;
+        private int cornerRadius;
         private int marginLeft;
         private int marginTop;
         private int marginRight;
@@ -62,7 +59,6 @@ public class Controls {
         private int paddingRight;
         private int paddingBottom;
         private int elevation;
-        private boolean noShadow;
 
         public String getId() {
             return id;
@@ -152,36 +148,12 @@ public class Controls {
             this.rotation = rotation;
         }
 
-        public int getTopLeftRadius() {
-            return topLeftRadius;
+        public int getCornerRadius() {
+            return cornerRadius;
         }
 
-        public void setTopLeftRadius(int topLeftRadius) {
-            this.topLeftRadius = topLeftRadius;
-        }
-
-        public int getTopRightRadius() {
-            return topRightRadius;
-        }
-
-        public void setTopRightRadius(int topRightRadius) {
-            this.topRightRadius = topRightRadius;
-        }
-
-        public int getBottomLeftRadius() {
-            return bottomLeftRadius;
-        }
-
-        public void setBottomLeftRadius(int bottomLeftRadius) {
-            this.bottomLeftRadius = bottomLeftRadius;
-        }
-
-        public int getBottomRightRadius() {
-            return bottomRightRadius;
-        }
-
-        public void setBottomRightRadius(int bottomRightRadius) {
-            this.bottomRightRadius = bottomRightRadius;
+        public void setCornerRadius(int cornerRadius) {
+            this.cornerRadius = cornerRadius;
         }
 
         public int getMarginLeft() {
@@ -254,21 +226,6 @@ public class Controls {
 
         public void setElevation(int elevation) {
             this.elevation = elevation;
-        }
-
-        public boolean isNoShadow() {
-            return noShadow;
-        }
-
-        public void setNoShadow(boolean noShadow) {
-            this.noShadow = noShadow;
-        }
-
-        public void setCornerRadius(int radius) {
-            this.topLeftRadius = radius;
-            this.topRightRadius = radius;
-            this.bottomLeftRadius = radius;
-            this.bottomRightRadius = radius;
         }
     }
 

@@ -1,5 +1,6 @@
 package kasper.android.pulseframework.engines;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
@@ -51,6 +52,7 @@ import java.util.TimerTask;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import kasper.android.pulseframework.R;
 import kasper.android.pulseframework.adapters.DropDownAdapter;
 import kasper.android.pulseframework.adapters.RecyclerAdapter;
 import kasper.android.pulseframework.interfaces.IMainThreadRunner;
@@ -63,15 +65,14 @@ import tcking.github.com.giraffeplayer2.VideoView;
 public class UiInitiatorEngine {
 
     private Context context;
-    private String appName;
     private IMainThreadRunner mainThreadRunner;
 
-    public UiInitiatorEngine(Context context, String appName, IMainThreadRunner mainThreadRunner) {
+    public UiInitiatorEngine(Context context, IMainThreadRunner mainThreadRunner) {
         this.context = context;
-        this.appName = appName;
         this.mainThreadRunner = mainThreadRunner;
     }
 
+    @SuppressLint("RtlHardcoded")
     public Tuple<View, List<Pair<Controls.Control, View>>
             , Hashtable<String, Pair<Controls.Control, View>>> buildViewTree(
             Controls.PanelCtrl.LayoutType parentLayoutType, Controls.Control control) {
@@ -586,54 +587,26 @@ public class UiInitiatorEngine {
         if (!isFieldEmpty(el.getBackColor()))
             view.setBackgroundColor(Color.parseColor(el.getBackColor()));
 
-        if (!isFieldEmpty(el.getTopLeftRadius())) {
-            CardView outerCV = new CardView(context);
-            outerCV.setRadius(GraphicsHelper.dpToPx(el.getTopLeftRadius()));
-
-            if (!isFieldEmpty(el.getBorderColor()))
-                outerCV.setCardBackgroundColor(Color.parseColor(el.getBorderColor()));
-
-            CardView innerCV = new CardView(context);
-
-            CardView.LayoutParams innerCvParams = new CardView.LayoutParams(
-                    CardView.LayoutParams.MATCH_PARENT,
-                    CardView.LayoutParams.MATCH_PARENT);
-            int bw = GraphicsHelper.dpToPx(el.getBorderWidth());
-            innerCvParams.setMargins(bw, bw, bw, bw);
-            innerCV.setLayoutParams(innerCvParams);
-
-            innerCV.setRadius(GraphicsHelper.dpToPx(el.getTopLeftRadius()));
-            innerCV.setCardElevation(0);
-
-            innerCV.addView(view);
-            outerCV.addView(innerCV);
-
-            view = outerCV;
-
-            ((CardView) view).setCardElevation(el.getElevation());
-
-        } else {
-
-            FrameLayout outerFL = new FrameLayout(context);
-
-            if (!isFieldEmpty(el.getBorderColor()))
-                outerFL.setBackgroundColor(Color.parseColor(el.getBorderColor()));
-
-            FrameLayout innerFL = new FrameLayout(context);
-            FrameLayout.LayoutParams innerFlParams = new FrameLayout.LayoutParams(
-                    FrameLayout.LayoutParams.MATCH_PARENT,
-                    FrameLayout.LayoutParams.MATCH_PARENT);
-            int bw = GraphicsHelper.dpToPx(el.getBorderWidth());
-            innerFlParams.setMargins(bw, bw, bw, bw);
-            innerFL.setLayoutParams(innerFlParams);
-
-            innerFL.addView(view);
-            outerFL.addView(innerFL);
-
-            view = outerFL;
-
-            view.setElevation(el.getElevation());
-        }
+        CardView outerCV = new CardView(context);
+        outerCV.setRadius(GraphicsHelper.dpToPx(el.getCornerRadius()));
+        if (!isFieldEmpty(el.getBorderColor()))
+            outerCV.setCardBackgroundColor(Color.parseColor(el.getBorderColor()));
+        else if (isFieldEmpty(el.getCornerRadius()))
+            outerCV.setBackgroundResource(R.drawable.empty_background);
+        CardView innerCV = new CardView(context);
+        CardView.LayoutParams innerCvParams = new CardView.LayoutParams(
+                CardView.LayoutParams.MATCH_PARENT,
+                CardView.LayoutParams.MATCH_PARENT);
+        int bw = GraphicsHelper.dpToPx(el.getBorderWidth());
+        innerCvParams.setMargins(bw, bw, bw, bw);
+        innerCV.setLayoutParams(innerCvParams);
+        innerCV.setRadius(GraphicsHelper.dpToPx(el.getCornerRadius()));
+        innerCV.setCardElevation(0);
+        innerCV.setBackgroundResource(R.drawable.empty_background);
+        innerCV.addView(view);
+        outerCV.addView(innerCV);
+        view = outerCV;
+        ((CardView) view).setCardElevation(el.getElevation());
 
         ViewGroup.LayoutParams mlp = null;
         if (parentLayoutType == Controls.PanelCtrl.LayoutType.RELATIVE) {

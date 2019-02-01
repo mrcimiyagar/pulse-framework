@@ -88,19 +88,7 @@ public class Updates {
         
     }
 
-    public static class ControlUpdateTopLeftRadius extends IntUpdate {
-        
-    }
-
-    public static class ControlUpdateTopRightRadius extends IntUpdate {
-        
-    }
-
-    public static class ControlUpdateBottomLeftRadius extends IntUpdate {
-        
-    }
-
-    public static class ControlUpdateBottomRightRadius extends IntUpdate {
+    public static class ControlUpdateCornerRadius extends IntUpdate {
         
     }
 

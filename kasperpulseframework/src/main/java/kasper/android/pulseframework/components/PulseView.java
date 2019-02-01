@@ -58,10 +58,10 @@ public class PulseView extends RelativeLayout {
 
     public void setup(AppCompatActivity activity) {
         this.uiInitiatorEngine = new UiInitiatorEngine(
-                getContext(), getResources().getString(R.string.app_name),
+                getContext(),
                 activity::runOnUiThread);
         this.uiUpdaterEngine = new UiUpdaterEngine(
-                getContext(), getResources().getString(R.string.app_name),
+                getContext(),
                 activity::runOnUiThread);
     }
 
