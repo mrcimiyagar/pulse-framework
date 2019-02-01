@@ -1,6 +1,5 @@
 package kasper.android.pulseframeworkproject;
 
-import android.graphics.Color;
 import android.os.Handler;
 import android.os.Bundle;
 import android.util.Log;
@@ -389,18 +388,18 @@ public class MainActivity extends AppCompatActivity {
         optionCtrl.setTintColor(colorBlue);
         containerEl.getControls().add(optionCtrl);
 
-        Controls.RecyclerListCtrl recyclerListCtrl = new Controls.RecyclerListCtrl();
-        recyclerListCtrl.setWidth(300);
-        recyclerListCtrl.setHeight(400);
-        recyclerListCtrl.setMarginTop(56);
-        recyclerListCtrl.setMarginBottom(300);
-        recyclerListCtrl.setX(Controls.Control.CENTER);
-        recyclerListCtrl.setBackColor(colorDarkDark);
-        recyclerListCtrl.setCornerRadius(16);
-        recyclerListCtrl.setOrientation(Controls.RecyclerListCtrl.RecyclerOrientation.VERTICAL);
-        recyclerListCtrl.setRecyclerType(Controls.RecyclerListCtrl.RecyclerLayoutType.GRID);
-        recyclerListCtrl.setGridSpanCount(2);
-        recyclerListCtrl.setItems(new ArrayList<>());
+        Controls.RecyclerCtrl recyclerCtrl = new Controls.RecyclerCtrl();
+        recyclerCtrl.setWidth(300);
+        recyclerCtrl.setHeight(400);
+        recyclerCtrl.setMarginTop(56);
+        recyclerCtrl.setMarginBottom(300);
+        recyclerCtrl.setX(Controls.Control.CENTER);
+        recyclerCtrl.setBackColor(colorDarkDark);
+        recyclerCtrl.setCornerRadius(16);
+        recyclerCtrl.setOrientation(Controls.RecyclerCtrl.RecyclerOrientation.VERTICAL);
+        recyclerCtrl.setRecyclerType(Controls.RecyclerCtrl.RecyclerLayoutType.GRID);
+        recyclerCtrl.setGridSpanCount(1);
+        recyclerCtrl.setItems(new ArrayList<>());
         for (int counter = 0; counter < 5; counter++) {
             Controls.TextCtrl item = new Controls.TextCtrl();
             item.setWidth(Controls.Control.MATCH_PARENT);
@@ -410,7 +409,7 @@ public class MainActivity extends AppCompatActivity {
             item.setBackColor(colorDarkLight);
             item.setTextSize(18);
             item.setText("Item " + counter);
-            recyclerListCtrl.getItems().add(item);
+            recyclerCtrl.getItems().add(item);
         }
         Controls.ImageCtrl rItemImage = new Controls.ImageCtrl();
         rItemImage.setScaleType(Controls.ImageCtrl.ImageScaleType.CENTER_CROP);
@@ -418,7 +417,7 @@ public class MainActivity extends AppCompatActivity {
         rItemImage.setHeight(200);
         rItemImage.setX(Controls.Control.CENTER);
         rItemImage.setImageUrl("https://quera.ir/media/CACHE/images/public/avatars/dbb966f617244cd8beb7a7bca29fa2c5/4ea69e7d275c233761a727dfb97e4fc1.jpg");
-        recyclerListCtrl.getItems().add(rItemImage);
+        recyclerCtrl.getItems().add(rItemImage);
         for (int counter = 5; counter < 10; counter++) {
             Controls.TextCtrl item = new Controls.TextCtrl();
             item.setWidth(Controls.Control.MATCH_PARENT);
@@ -428,12 +427,28 @@ public class MainActivity extends AppCompatActivity {
             item.setBackColor(colorDarkLight);
             item.setTextSize(18);
             item.setText("Item " + counter);
-            recyclerListCtrl.getItems().add(item);
+            recyclerCtrl.getItems().add(item);
         }
+        containerEl.getControls().add(recyclerCtrl);
 
-        containerEl.getControls().add(recyclerListCtrl);
+        Controls.RecyclerCtrl hrc = new Controls.RecyclerCtrl();
+        hrc.setWidth(Controls.Control.MATCH_PARENT);
+        hrc.setHeight(224);
+        hrc.setRecyclerType(Controls.RecyclerCtrl.RecyclerLayoutType.LINEAR);
+        hrc.setOrientation(Controls.RecyclerCtrl.RecyclerOrientation.HORIZONTAL);
+        hrc.setItems(new ArrayList<>());
+        for (int counter = 0; counter < 10; counter++) {
+            Controls.ImageCtrl imageCtrl = new Controls.ImageCtrl();
+            imageCtrl.setWidth(224);
+            imageCtrl.setHeight(224);
+            imageCtrl.setScaleType(Controls.ImageCtrl.ImageScaleType.CENTER_CROP);
+            imageCtrl.setImageUrl("https://quera.ir/media/CACHE/images/public/avatars/dbb966f617244cd8beb7a7bca29fa2c5/4ea69e7d275c233761a727dfb97e4fc1.jpg");
+            hrc.getItems().add(imageCtrl);
+        }
+        recyclerCtrl.getItems().add(hrc);
 
         PulseView pulseView = findViewById(R.id.pulseView);
+        pulseView.setup(this);
 
         try {
             String json = new ObjectMapper().writeValueAsString(scrollerCtrl);
@@ -443,34 +458,25 @@ public class MainActivity extends AppCompatActivity {
             ex.printStackTrace();
         }
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Updates.ControlUpdateMarginTop updateMarginTop = new Updates.ControlUpdateMarginTop();
-                updateMarginTop.setControlId("WelcomeMessageEl");
-                updateMarginTop.setValue(224);
-                pulseView.updateUi(updateMarginTop);
+        new Handler().postDelayed(() -> {
+            Updates.ControlUpdateMarginTop updateMarginTop = new Updates.ControlUpdateMarginTop();
+            updateMarginTop.setControlId("WelcomeMessageEl");
+            updateMarginTop.setValue(224);
+            pulseView.updateUi(updateMarginTop);
 
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        Updates.ControlUpdateHeight updateHeight = new Updates.ControlUpdateHeight();
-                        updateHeight.setControlId("WelcomeMessageEl");
-                        updateHeight.setValue(200);
-                        pulseView.updateUi(updateHeight);
+            new Handler().postDelayed(() -> {
+                Updates.ControlUpdateHeight updateHeight = new Updates.ControlUpdateHeight();
+                updateHeight.setControlId("WelcomeMessageEl");
+                updateHeight.setValue(200);
+                pulseView.updateUi(updateHeight);
 
-                        new Handler().postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                Updates.LineChartCtrlUpdateLineColor updateLineColor = new Updates.LineChartCtrlUpdateLineColor();
-                                updateLineColor.setControlId("LineChartEl");
-                                updateLineColor.setValue("#00ff00");
-                                pulseView.updateUi(updateLineColor);
-                            }
-                        }, 3000);
-                    }
+                new Handler().postDelayed(() -> {
+                    Updates.LineChartCtrlUpdateLineColor updateLineColor = new Updates.LineChartCtrlUpdateLineColor();
+                    updateLineColor.setControlId("LineChartEl");
+                    updateLineColor.setValue("#00ff00");
+                    pulseView.updateUi(updateLineColor);
                 }, 3000);
-            }
+            }, 3000);
         }, 3000);
     }
 }

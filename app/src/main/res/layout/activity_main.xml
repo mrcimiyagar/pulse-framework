@@ -11,6 +11,6 @@
         android:id="@+id/pulseView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#151E27"/>
+        android:background="#151E27" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

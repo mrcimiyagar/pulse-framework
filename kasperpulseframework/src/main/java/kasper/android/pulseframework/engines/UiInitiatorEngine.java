@@ -2,14 +2,13 @@ package kasper.android.pulseframework.engines;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
-import android.database.DataSetObserver;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.net.Uri;
 
-import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.core.widget.CompoundButtonCompat;
+
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Pair;
@@ -21,13 +20,13 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -39,7 +38,6 @@ import com.db.chart.view.HorizontalBarChartView;
 import com.db.chart.view.HorizontalStackBarChartView;
 import com.db.chart.view.LineChartView;
 import com.db.chart.view.StackBarChartView;
-import com.github.florent37.shapeofview.shapes.RoundRectView;
 import com.moos.library.CircleProgressView;
 import com.moos.library.HorizontalProgressView;
 
@@ -53,7 +51,9 @@ import java.util.TimerTask;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import kasper.android.pulseframework.components.RoundRectViewEdited;
+import kasper.android.pulseframework.adapters.DropDownAdapter;
+import kasper.android.pulseframework.adapters.RecyclerAdapter;
+import kasper.android.pulseframework.interfaces.IMainThreadRunner;
 import kasper.android.pulseframework.models.Data;
 import kasper.android.pulseframework.models.Controls;
 import kasper.android.pulseframework.models.Tuple;
@@ -64,10 +64,12 @@ public class UiInitiatorEngine {
 
     private Context context;
     private String appName;
+    private IMainThreadRunner mainThreadRunner;
 
-    public UiInitiatorEngine(Context context, String appName) {
+    public UiInitiatorEngine(Context context, String appName, IMainThreadRunner mainThreadRunner) {
         this.context = context;
         this.appName = appName;
+        this.mainThreadRunner = mainThreadRunner;
     }
 
     public Tuple<View, List<Pair<Controls.Control, View>>
@@ -284,9 +286,11 @@ public class UiInitiatorEngine {
             timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    videoPlayerCtrl.setProgress(videoView.getPlayer().getCurrentPosition());
+                    mainThreadRunner.runOnMainThread(() ->
+                            videoPlayerCtrl.setProgress(videoView.getPlayer().getCurrentPosition()));
                 }
             }, 1, 1000);
+            statefulCtrls.add(new Pair<>(videoPlayerCtrl, videoView));
             result = videoView;
         } else if (control instanceof Controls.LineChartCtrl) {
             Controls.LineChartCtrl chartEl = (Controls.LineChartCtrl) control;
@@ -300,36 +304,6 @@ public class UiInitiatorEngine {
             lineChartView.setClickablePointRadius(GraphicsHelper.dpToPx(chartEl.getDotsRadius()));
             lineChartView.show();
             result = lineChartView;
-        } else if (control instanceof Controls.BarChartCtrl) {
-            Controls.BarChartCtrl chartEl = (Controls.BarChartCtrl) control;
-            BarChartView barChartView = new BarChartView(context);
-            if (!isFieldEmpty(chartEl.getBarSpacing()))
-                barChartView.setBarSpacing(GraphicsHelper.dpToPx(chartEl.getBarSpacing()));
-            if (!isFieldEmpty(chartEl.getSetSpacing()))
-                barChartView.setSetSpacing(GraphicsHelper.dpToPx(chartEl.getSetSpacing()));
-            if (!isFieldEmpty(chartEl.getBarBackgroundColor()))
-                barChartView.setBarBackgroundColor(Color.parseColor(chartEl.getBarBackgroundColor()));
-            if (!isFieldEmpty(chartEl.getRoundCorners()))
-                barChartView.setRoundCorners(GraphicsHelper.dpToPx(chartEl.getRoundCorners()));
-            BarSet dataset = new BarSet();
-            if (!isFieldEmpty(chartEl.getBarsColor()))
-                dataset.setColor(Color.parseColor(chartEl.getBarsColor()));
-            Iterator<Data.Point> pointIterator = chartEl.getPoints().iterator();
-            Iterator<Data.StringValue> barColorIterator = chartEl.getBarColors().iterator();
-            while (pointIterator.hasNext() && barColorIterator.hasNext()) {
-                Data.Point point = pointIterator.next();
-                Data.StringValue barColor = barColorIterator.next();
-                Bar bar = new Bar(point.getLabel(), point.getValue());
-                bar.setColor(Color.parseColor(barColor.getValue()));
-                dataset.addBar(bar);
-            }
-            barChartView.addData(dataset);
-            if (!isFieldEmpty(chartEl.getAxisColor()))
-                barChartView.setAxisColor(Color.parseColor(chartEl.getAxisColor()));
-            if (!isFieldEmpty(chartEl.getLabelsColor()))
-                barChartView.setLabelsColor(Color.parseColor(chartEl.getLabelsColor()));
-            barChartView.show();
-            result = barChartView;
         } else if (control instanceof Controls.HorizontalBarChartCtrl) {
             Controls.HorizontalBarChartCtrl chartEl = (Controls.HorizontalBarChartCtrl) control;
             HorizontalBarChartView horizontalBarChartView = new HorizontalBarChartView(context);
@@ -426,6 +400,36 @@ public class UiInitiatorEngine {
                         Color.parseColor(horizontalStackBarChartCtrl.getLabelsColor()));
             horizontalStackBarChartView.show();
             result = horizontalStackBarChartView;
+        } else if (control instanceof Controls.BarChartCtrl) {
+            Controls.BarChartCtrl chartEl = (Controls.BarChartCtrl) control;
+            BarChartView barChartView = new BarChartView(context);
+            if (!isFieldEmpty(chartEl.getBarSpacing()))
+                barChartView.setBarSpacing(GraphicsHelper.dpToPx(chartEl.getBarSpacing()));
+            if (!isFieldEmpty(chartEl.getSetSpacing()))
+                barChartView.setSetSpacing(GraphicsHelper.dpToPx(chartEl.getSetSpacing()));
+            if (!isFieldEmpty(chartEl.getBarBackgroundColor()))
+                barChartView.setBarBackgroundColor(Color.parseColor(chartEl.getBarBackgroundColor()));
+            if (!isFieldEmpty(chartEl.getRoundCorners()))
+                barChartView.setRoundCorners(GraphicsHelper.dpToPx(chartEl.getRoundCorners()));
+            BarSet dataset = new BarSet();
+            if (!isFieldEmpty(chartEl.getBarsColor()))
+                dataset.setColor(Color.parseColor(chartEl.getBarsColor()));
+            Iterator<Data.Point> pointIterator = chartEl.getPoints().iterator();
+            Iterator<Data.StringValue> barColorIterator = chartEl.getBarColors().iterator();
+            while (pointIterator.hasNext() && barColorIterator.hasNext()) {
+                Data.Point point = pointIterator.next();
+                Data.StringValue barColor = barColorIterator.next();
+                Bar bar = new Bar(point.getLabel(), point.getValue());
+                bar.setColor(Color.parseColor(barColor.getValue()));
+                dataset.addBar(bar);
+            }
+            barChartView.addData(dataset);
+            if (!isFieldEmpty(chartEl.getAxisColor()))
+                barChartView.setAxisColor(Color.parseColor(chartEl.getAxisColor()));
+            if (!isFieldEmpty(chartEl.getLabelsColor()))
+                barChartView.setLabelsColor(Color.parseColor(chartEl.getLabelsColor()));
+            barChartView.show();
+            result = barChartView;
         } else if (control instanceof Controls.ScrollerCtrl) {
             Controls.ScrollerCtrl scrollerCtrl = (Controls.ScrollerCtrl) control;
             ScrollView scrollView = new ScrollView(context);
@@ -441,36 +445,8 @@ public class UiInitiatorEngine {
             scrollView.addView(panelView);
             scrollView.scrollTo(0, scrollerCtrl.getPosition());
             scrollView.getViewTreeObserver()
-                    .addOnScrollChangedListener(() -> {
-                        scrollerCtrl.setPosition(scrollView.getScrollY());
-                    });
+                    .addOnScrollChangedListener(() -> scrollerCtrl.setPosition(scrollView.getScrollY()));
             result = scrollView;
-        } else if (control instanceof Controls.CheckCtrl) {
-            Controls.CheckCtrl checkCtrl = (Controls.CheckCtrl) control;
-            CheckBox checkBox = new CheckBox(context);
-            if (!isFieldEmpty(checkCtrl.getCaption()))
-                checkBox.setText(checkCtrl.getCaption());
-            if (!isFieldEmpty(checkCtrl.getCaptionColor()))
-                checkBox.setTextColor(Color.parseColor(checkCtrl.getCaptionColor()));
-            if (!isFieldEmpty(checkCtrl.getCaptionSize()))
-                checkBox.setTextSize(TypedValue.COMPLEX_UNIT_SP, checkCtrl.getCaptionSize());
-            if (!isFieldEmpty(checkCtrl.getTintColor())) {
-                ColorStateList  colorStateList = new ColorStateList(
-                        new int[][]{
-                                new int[]{-android.R.attr.state_checked}, // unchecked
-                                new int[]{android.R.attr.state_checked} , // checked
-                        },
-                        new int[]{
-                                Color.parseColor(checkCtrl.getTintColor()),
-                                Color.parseColor(checkCtrl.getTintColor()),
-                        }
-                );
-                CompoundButtonCompat.setButtonTintList(checkBox,colorStateList);
-            }
-            checkBox.setChecked(checkCtrl.isChecked());
-            checkBox.setOnCheckedChangeListener((compoundButton, b)
-                    -> checkCtrl.setChecked(checkBox.isChecked()));
-            result = checkBox;
         } else if (control instanceof Controls.OptionCtrl) {
             Controls.OptionCtrl optionCtrl = (Controls.OptionCtrl) control;
             RadioButton radioButton = new RadioButton(context);
@@ -497,79 +473,37 @@ public class UiInitiatorEngine {
             radioButton.setOnCheckedChangeListener((compoundButton, b)
                     -> optionCtrl.setChecked(radioButton.isChecked()));
             result = radioButton;
+        } else if (control instanceof Controls.CheckCtrl) {
+            Controls.CheckCtrl checkCtrl = (Controls.CheckCtrl) control;
+            CheckBox checkBox = new CheckBox(context);
+            if (!isFieldEmpty(checkCtrl.getCaption()))
+                checkBox.setText(checkCtrl.getCaption());
+            if (!isFieldEmpty(checkCtrl.getCaptionColor()))
+                checkBox.setTextColor(Color.parseColor(checkCtrl.getCaptionColor()));
+            if (!isFieldEmpty(checkCtrl.getCaptionSize()))
+                checkBox.setTextSize(TypedValue.COMPLEX_UNIT_SP, checkCtrl.getCaptionSize());
+            if (!isFieldEmpty(checkCtrl.getTintColor())) {
+                ColorStateList colorStateList = new ColorStateList(
+                        new int[][]{
+                                new int[]{-android.R.attr.state_checked}, // unchecked
+                                new int[]{android.R.attr.state_checked} , // checked
+                        },
+                        new int[]{
+                                Color.parseColor(checkCtrl.getTintColor()),
+                                Color.parseColor(checkCtrl.getTintColor()),
+                        }
+                );
+                CompoundButtonCompat.setButtonTintList(checkBox,colorStateList);
+            }
+            checkBox.setChecked(checkCtrl.isChecked());
+            checkBox.setOnCheckedChangeListener((compoundButton, b)
+                    -> checkCtrl.setChecked(checkBox.isChecked()));
+            result = checkBox;
         } else if (control instanceof Controls.DropDownCtrl) {
             Controls.DropDownCtrl dropDownCtrl = (Controls.DropDownCtrl) control;
             Spinner spinner = new Spinner(context);
-            spinner.setAdapter(new SpinnerAdapter() {
-                @Override
-                public View getDropDownView(int i, View view, ViewGroup viewGroup) {
-                    Tuple<View, List<Pair<Controls.Control, View>>,
-                            Hashtable<String, Pair<Controls.Control, View>>> pair = buildViewTree(
-                            Controls.PanelCtrl.LayoutType.LINEAR_VERTICAL,
-                            dropDownCtrl.getItems().get(i));
-                    View itemView = pair.getItem1();
-                    initFingerprint(pair.getItem2(), i);
-                    idTable.putAll(pair.getItem3());
-                    return itemView;
-                }
-
-                @Override
-                public void registerDataSetObserver(DataSetObserver dataSetObserver) {
-
-                }
-
-                @Override
-                public void unregisterDataSetObserver(DataSetObserver dataSetObserver) {
-
-                }
-
-                @Override
-                public int getCount() {
-                    return dropDownCtrl.getItems().size();
-                }
-
-                @Override
-                public Object getItem(int i) {
-                    return dropDownCtrl.getItems().get(i);
-                }
-
-                @Override
-                public long getItemId(int i) {
-                    return i;
-                }
-
-                @Override
-                public boolean hasStableIds() {
-                    return true;
-                }
-
-                @Override
-                public View getView(int i, View view, ViewGroup viewGroup) {
-                    Tuple<View, List<Pair<Controls.Control, View>>,
-                            Hashtable<String, Pair<Controls.Control, View>>> pair = buildViewTree(
-                            Controls.PanelCtrl.LayoutType.LINEAR_VERTICAL,
-                            dropDownCtrl.getItems().get(i));
-                    View itemView = pair.getItem1();
-                    initFingerprint(pair.getItem2(), i);
-                    idTable.putAll(pair.getItem3());
-                    return itemView;
-                }
-
-                @Override
-                public int getItemViewType(int i) {
-                    return 1;
-                }
-
-                @Override
-                public int getViewTypeCount() {
-                    return 1;
-                }
-
-                @Override
-                public boolean isEmpty() {
-                    return dropDownCtrl.getItems().size() == 0;
-                }
-            });
+            spinner.setAdapter(new DropDownAdapter(
+                    dropDownCtrl.getItems(), idTable, this));
             spinner.setSelection(dropDownCtrl.getSelectedPos());
             spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
@@ -583,67 +517,34 @@ public class UiInitiatorEngine {
                 }
             });
             result = spinner;
-        } else if (control instanceof Controls.RecyclerListCtrl) {
-            Controls.RecyclerListCtrl recyclerListCtrl = (Controls.RecyclerListCtrl) control;
+        } else if (control instanceof Controls.RecyclerCtrl) {
+            Controls.RecyclerCtrl recyclerCtrl = (Controls.RecyclerCtrl) control;
             RecyclerView recyclerView = new RecyclerView(context);
-            if (recyclerListCtrl.getRecyclerType() ==
-                    Controls.RecyclerListCtrl.RecyclerLayoutType.LINEAR) {
-                if (recyclerListCtrl.getOrientation() ==
-                        Controls.RecyclerListCtrl.RecyclerOrientation.HORIZONTAL)
+            if (recyclerCtrl.getRecyclerType() ==
+                    Controls.RecyclerCtrl.RecyclerLayoutType.LINEAR) {
+                if (recyclerCtrl.getOrientation() ==
+                        Controls.RecyclerCtrl.RecyclerOrientation.HORIZONTAL)
                     recyclerView.setLayoutManager(new LinearLayoutManager(
                             context, RecyclerView.HORIZONTAL, false));
-                else if (recyclerListCtrl.getOrientation() ==
-                        Controls.RecyclerListCtrl.RecyclerOrientation.VERTICAL)
+                else if (recyclerCtrl.getOrientation() ==
+                        Controls.RecyclerCtrl.RecyclerOrientation.VERTICAL)
                     recyclerView.setLayoutManager(new LinearLayoutManager(
                             context, RecyclerView.VERTICAL, false));
             } else {
-                if (recyclerListCtrl.getOrientation() ==
-                        Controls.RecyclerListCtrl.RecyclerOrientation.HORIZONTAL)
+                if (recyclerCtrl.getOrientation() ==
+                        Controls.RecyclerCtrl.RecyclerOrientation.HORIZONTAL)
                     recyclerView.setLayoutManager(new GridLayoutManager(
-                            context, recyclerListCtrl.getGridSpanCount()
+                            context, recyclerCtrl.getGridSpanCount()
                             , RecyclerView.HORIZONTAL, false));
-                else if (recyclerListCtrl.getOrientation() ==
-                        Controls.RecyclerListCtrl.RecyclerOrientation.VERTICAL)
+                else if (recyclerCtrl.getOrientation() ==
+                        Controls.RecyclerCtrl.RecyclerOrientation.VERTICAL)
                     recyclerView.setLayoutManager(new GridLayoutManager(
-                            context, recyclerListCtrl.getGridSpanCount()
+                            context, recyclerCtrl.getGridSpanCount()
                             , RecyclerView.VERTICAL, false));
             }
-            recyclerView.setAdapter(new RecyclerView.Adapter() {
-                @NonNull
-                @Override
-                public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-                    RelativeLayout itemContainer = new RelativeLayout(context);
-                    itemContainer.setLayoutParams(
-                            new RecyclerView.LayoutParams(
-                                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                                    ViewGroup.LayoutParams.WRAP_CONTENT));
-                    return new ItemHolder(itemContainer);
-                }
-
-                @Override
-                public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int i) {
-                    Tuple<View, List<Pair<Controls.Control, View>>,
-                            Hashtable<String, Pair<Controls.Control, View>>> pair =
-                            buildViewTree(
-                                    Controls.PanelCtrl.LayoutType.RELATIVE,
-                                    recyclerListCtrl.getItems().get(i));
-                    View itemView = pair.getItem1();
-                    initFingerprint(pair.getItem2(), i);
-                    idTable.putAll(pair.getItem3());
-                    ((ViewGroup)((ItemHolder) holder).itemView).addView(itemView);
-                }
-
-                @Override
-                public int getItemCount() {
-                    return recyclerListCtrl.getItems().size();
-                }
-
-                class ItemHolder extends RecyclerView.ViewHolder {
-                    ItemHolder(View itemView) {
-                        super(itemView);
-                    }
-                }
-            });
+            recyclerView.setAdapter(new RecyclerAdapter(
+                    context, this, idTable, recyclerCtrl.getItems()));
+            statefulCtrls.add(new Pair<>(recyclerCtrl, recyclerView));
             result = recyclerView;
         }
 
@@ -657,7 +558,7 @@ public class UiInitiatorEngine {
         return new Tuple<>(result, statefulCtrls, idTable);
     }
 
-    private void initFingerprint(List<Pair<Controls.Control, View>> list, int i) {
+    public void initFingerprint(List<Pair<Controls.Control, View>> list, int i) {
         for (Pair<Controls.Control, View> statefulCtrl : list) {
             View target = statefulCtrl.second;
             if (target instanceof CardView) {
@@ -685,20 +586,54 @@ public class UiInitiatorEngine {
         if (!isFieldEmpty(el.getBackColor()))
             view.setBackgroundColor(Color.parseColor(el.getBackColor()));
 
-        RoundRectViewEdited roundRectView = new RoundRectViewEdited(context, el.isNoShadow());
-        if (!isFieldEmpty(el.getBorderColor()))
-            roundRectView.setBorderColor(Color.parseColor(el.getBorderColor()));
-        roundRectView.setBorderWidth(GraphicsHelper.dpToPx(el.getBorderWidth()));
-        roundRectView.setTopLeftRadius(GraphicsHelper.dpToPx(el.getTopLeftRadius()));
-        roundRectView.setTopRightRadius(GraphicsHelper.dpToPx(el.getTopRightRadius()));
-        roundRectView.setBottomLeftRadius(GraphicsHelper.dpToPx(el.getBottomLeftRadius()));
-        roundRectView.setBottomRightRadius(GraphicsHelper.dpToPx(el.getBottomRightRadius()));
-        if (isFieldEmpty(el.getBackColor()))
-            roundRectView.setBackgroundColor(Color.TRANSPARENT);
-        roundRectView.addView(view);
-        view = roundRectView;
+        if (!isFieldEmpty(el.getTopLeftRadius())) {
+            CardView outerCV = new CardView(context);
+            outerCV.setRadius(GraphicsHelper.dpToPx(el.getTopLeftRadius()));
 
-        view.setElevation(el.getElevation());
+            if (!isFieldEmpty(el.getBorderColor()))
+                outerCV.setCardBackgroundColor(Color.parseColor(el.getBorderColor()));
+
+            CardView innerCV = new CardView(context);
+
+            CardView.LayoutParams innerCvParams = new CardView.LayoutParams(
+                    CardView.LayoutParams.MATCH_PARENT,
+                    CardView.LayoutParams.MATCH_PARENT);
+            int bw = GraphicsHelper.dpToPx(el.getBorderWidth());
+            innerCvParams.setMargins(bw, bw, bw, bw);
+            innerCV.setLayoutParams(innerCvParams);
+
+            innerCV.setRadius(GraphicsHelper.dpToPx(el.getTopLeftRadius()));
+            innerCV.setCardElevation(0);
+
+            innerCV.addView(view);
+            outerCV.addView(innerCV);
+
+            view = outerCV;
+
+            ((CardView) view).setCardElevation(el.getElevation());
+
+        } else {
+
+            FrameLayout outerFL = new FrameLayout(context);
+
+            if (!isFieldEmpty(el.getBorderColor()))
+                outerFL.setBackgroundColor(Color.parseColor(el.getBorderColor()));
+
+            FrameLayout innerFL = new FrameLayout(context);
+            FrameLayout.LayoutParams innerFlParams = new FrameLayout.LayoutParams(
+                    FrameLayout.LayoutParams.MATCH_PARENT,
+                    FrameLayout.LayoutParams.MATCH_PARENT);
+            int bw = GraphicsHelper.dpToPx(el.getBorderWidth());
+            innerFlParams.setMargins(bw, bw, bw, bw);
+            innerFL.setLayoutParams(innerFlParams);
+
+            innerFL.addView(view);
+            outerFL.addView(innerFL);
+
+            view = outerFL;
+
+            view.setElevation(el.getElevation());
+        }
 
         ViewGroup.LayoutParams mlp = null;
         if (parentLayoutType == Controls.PanelCtrl.LayoutType.RELATIVE) {

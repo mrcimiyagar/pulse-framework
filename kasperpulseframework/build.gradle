@@ -39,6 +39,7 @@ dependencies {
     implementation 'com.moos:Material-ProgressView:1.0.6'
     implementation 'com.diogobernardino:williamchart:2.5.0'
     implementation 'com.github.florent37:shapeofview:1.4.6'
+    implementation 'com.jcminarro:RoundKornerLayouts:0.4.0'
     api 'com.github.tcking:giraffeplayer2:0.1.25'
     api 'com.github.tcking:ijkplayer-arm64:0.8.8' //support arm64
     api 'com.github.tcking:ijkplayer-armv5:0.8.8' //support armv5

@@ -30,7 +30,7 @@ public class Controls {
             @JsonSubTypes.Type(value = CheckCtrl.class, name = "CheckCtrl"),
             @JsonSubTypes.Type(value = OptionCtrl.class, name = "OptionCtrl"),
             @JsonSubTypes.Type(value = DropDownCtrl.class, name = "DropDownCtrl"),
-            @JsonSubTypes.Type(value = RecyclerListCtrl.class, name = "RecyclerListCtrl")
+            @JsonSubTypes.Type(value = RecyclerCtrl.class, name = "RecyclerCtrl")
     })
     public static class Control {
 
@@ -895,238 +895,16 @@ public class Controls {
         }
     }
 
-    public static class HorizontalBarChartCtrl extends Control {
-        private List<Data.Point> points;
-        private int barSpacing;
-        private int setSpacing;
-        private String barBackgroundColor;
-        private int roundCorners;
-        private String barsColor;
-        private List<Data.StringValue> barColors;
-        private String axisColor;
-        private String labelsColor;
+    public static class HorizontalBarChartCtrl extends BarChartCtrl {
 
-        public List<Data.Point> getPoints() {
-            return points;
-        }
-
-        public void setPoints(List<Data.Point> points) {
-            this.points = points;
-        }
-
-        public int getBarSpacing() {
-            return barSpacing;
-        }
-
-        public void setBarSpacing(int barSpacing) {
-            this.barSpacing = barSpacing;
-        }
-
-        public int getSetSpacing() {
-            return setSpacing;
-        }
-
-        public void setSetSpacing(int setSpacing) {
-            this.setSpacing = setSpacing;
-        }
-
-        public String getBarBackgroundColor() {
-            return barBackgroundColor;
-        }
-
-        public void setBarBackgroundColor(String barBackgroundColor) {
-            this.barBackgroundColor = barBackgroundColor;
-        }
-
-        public int getRoundCorners() {
-            return roundCorners;
-        }
-
-        public void setRoundCorners(int roundCorners) {
-            this.roundCorners = roundCorners;
-        }
-
-        public String getBarsColor() {
-            return barsColor;
-        }
-
-        public void setBarsColor(String barsColor) {
-            this.barsColor = barsColor;
-        }
-
-        public List<Data.StringValue> getBarColors() {
-            return barColors;
-        }
-
-        public void setBarColors(List<Data.StringValue> barColors) {
-            this.barColors = barColors;
-        }
-
-        public String getAxisColor() {
-            return axisColor;
-        }
-
-        public void setAxisColor(String axisColor) {
-            this.axisColor = axisColor;
-        }
-
-        public String getLabelsColor() {
-            return labelsColor;
-        }
-
-        public void setLabelsColor(String labelsColor) {
-            this.labelsColor = labelsColor;
-        }
     }
 
-    public static class StackBarChartCtrl extends Control {
-        private int barSpacing;
-        private String barBackgroundColor;
-        private int roundCorners;
-        private String barsColor;
-        private List<Data.StringValue> barColors;
-        private List<Data.Point> points;
-        private String axisColor;
-        private String labelsColor;
+    public static class StackBarChartCtrl extends BarChartCtrl {
 
-        public int getBarSpacing() {
-            return barSpacing;
-        }
-
-        public void setBarSpacing(int barSpacing) {
-            this.barSpacing = barSpacing;
-        }
-
-        public String getBarBackgroundColor() {
-            return barBackgroundColor;
-        }
-
-        public void setBarBackgroundColor(String barBackgroundColor) {
-            this.barBackgroundColor = barBackgroundColor;
-        }
-
-        public int getRoundCorners() {
-            return roundCorners;
-        }
-
-        public void setRoundCorners(int roundCorners) {
-            this.roundCorners = roundCorners;
-        }
-
-        public String getBarsColor() {
-            return barsColor;
-        }
-
-        public void setBarsColor(String barsColor) {
-            this.barsColor = barsColor;
-        }
-
-        public List<Data.StringValue> getBarColors() {
-            return barColors;
-        }
-
-        public void setBarColors(List<Data.StringValue> barColors) {
-            this.barColors = barColors;
-        }
-
-        public List<Data.Point> getPoints() {
-            return points;
-        }
-
-        public void setPoints(List<Data.Point> points) {
-            this.points = points;
-        }
-
-        public String getAxisColor() {
-            return axisColor;
-        }
-
-        public void setAxisColor(String axisColor) {
-            this.axisColor = axisColor;
-        }
-
-        public String getLabelsColor() {
-            return labelsColor;
-        }
-
-        public void setLabelsColor(String labelsColor) {
-            this.labelsColor = labelsColor;
-        }
     }
 
-    public static class HorizontalStackBarChartCtrl extends Control {
-        private int barSpacing;
-        private String barBackgroundColor;
-        private int roundCorners;
-        private String barsColor;
-        private List<Data.StringValue> barColors;
-        private List<Data.Point> points;
-        private String axisColor;
-        private String labelsColor;
+    public static class HorizontalStackBarChartCtrl extends BarChartCtrl {
 
-        public int getBarSpacing() {
-            return barSpacing;
-        }
-
-        public void setBarSpacing(int barSpacing) {
-            this.barSpacing = barSpacing;
-        }
-
-        public String getBarBackgroundColor() {
-            return barBackgroundColor;
-        }
-
-        public void setBarBackgroundColor(String barBackgroundColor) {
-            this.barBackgroundColor = barBackgroundColor;
-        }
-
-        public int getRoundCorners() {
-            return roundCorners;
-        }
-
-        public void setRoundCorners(int roundCorners) {
-            this.roundCorners = roundCorners;
-        }
-
-        public String getBarsColor() {
-            return barsColor;
-        }
-
-        public void setBarsColor(String barsColor) {
-            this.barsColor = barsColor;
-        }
-
-        public List<Data.StringValue> getBarColors() {
-            return barColors;
-        }
-
-        public void setBarColors(List<Data.StringValue> barColors) {
-            this.barColors = barColors;
-        }
-
-        public List<Data.Point> getPoints() {
-            return points;
-        }
-
-        public void setPoints(List<Data.Point> points) {
-            this.points = points;
-        }
-
-        public String getAxisColor() {
-            return axisColor;
-        }
-
-        public void setAxisColor(String axisColor) {
-            this.axisColor = axisColor;
-        }
-
-        public String getLabelsColor() {
-            return labelsColor;
-        }
-
-        public void setLabelsColor(String labelsColor) {
-            this.labelsColor = labelsColor;
-        }
     }
 
     public static class ScrollerCtrl extends Control {
@@ -1198,57 +976,17 @@ public class Controls {
         }
     }
 
-    public static class OptionCtrl extends Control {
-        private String caption;
-        private String captionColor;
-        private int captionSize;
-        private String tintColor;
-        private boolean checked;
+    public static class OptionCtrl extends CheckCtrl {
 
-        public String getCaption() {
-            return caption;
-        }
-
-        public void setCaption(String caption) {
-            this.caption = caption;
-        }
-
-        public String getCaptionColor() {
-            return captionColor;
-        }
-
-        public void setCaptionColor(String captionColor) {
-            this.captionColor = captionColor;
-        }
-
-        public int getCaptionSize() {
-            return captionSize;
-        }
-
-        public void setCaptionSize(int captionSize) {
-            this.captionSize = captionSize;
-        }
-
-        public String getTintColor() {
-            return tintColor;
-        }
-
-        public void setTintColor(String tintColor) {
-            this.tintColor = tintColor;
-        }
-
-        public boolean isChecked() {
-            return checked;
-        }
-
-        public void setChecked(boolean checked) {
-            this.checked = checked;
-        }
     }
 
     public static class DropDownCtrl extends Control {
         private List<Control> items;
         private int selectedPos;
+
+        public DropDownCtrl() {
+            this.items = new ArrayList<>();
+        }
 
         public List<Control> getItems() {
             return items;
@@ -1267,7 +1005,7 @@ public class Controls {
         }
     }
 
-    public static class RecyclerListCtrl extends Control {
+    public static class RecyclerCtrl extends Control {
 
         public enum RecyclerLayoutType {
             @JsonProperty("LINEAR") LINEAR,
@@ -1283,6 +1021,10 @@ public class Controls {
         private RecyclerLayoutType recyclerType;
         private RecyclerOrientation orientation;
         private int gridSpanCount;
+
+        public RecyclerCtrl() {
+            this.items = new ArrayList<>();
+        }
 
         public List<Control> getItems() {
             return items;

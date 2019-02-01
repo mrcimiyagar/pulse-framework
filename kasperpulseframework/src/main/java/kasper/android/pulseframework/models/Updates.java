@@ -413,5 +413,133 @@ public class Updates {
 
     }
 
+    public static class BarChartCtrlUpdatePoints extends Update {
+        private List<Data.Point> value;
+        private List<Data.StringValue> value2;
 
+        public List<Data.Point> getValue() {
+            return value;
+        }
+
+        public void setValue(List<Data.Point> value) {
+            this.value = value;
+        }
+
+        public List<Data.StringValue> getValue2() {
+            return value2;
+        }
+
+        public void setValue2(List<Data.StringValue> value2) {
+            this.value2 = value2;
+        }
+    }
+
+    public static class BarChartCtrlUpdateBarSpacing extends IntUpdate {
+
+    }
+
+    public static class BarChartCtrlUpdateSetSpacing extends IntUpdate {
+
+    }
+
+    public static class BarChartCtrlUpdateBarBackgroundColor extends StringUpdate {
+
+    }
+
+    public static class BarChartCtrlUpdateRoundCorners extends IntUpdate {
+
+    }
+
+    public static class BarChartCtrlUpdateBarsColor extends StringUpdate {
+
+    }
+
+    public static class BarChartCtrlUpdateAxisColor extends StringUpdate {
+
+    }
+
+    public static class BarChartCtrlUpdateLabelsColor extends StringUpdate {
+
+    }
+
+    public static class ScrollerCtrlUpdatePosition extends IntUpdate {
+
+    }
+
+    public static class CompoundCtrlUpdateCaption extends StringUpdate {
+
+    }
+
+    public static class CompoundCtrlUpdateCaptionSize extends IntUpdate {
+
+    }
+
+    public static class CompoundCtrlUpdateCaptionColor extends StringUpdate {
+
+    }
+
+    public static class CompoundCtrlUpdateTintColor extends StringUpdate {
+
+    }
+
+    public static class CompoundCtrlUpdateChecked extends BoolUpdate {
+
+    }
+
+    public static class DropDownCtrlAddItem extends Update {
+        private Controls.Control value;
+
+        public Controls.Control getValue() {
+            return value;
+        }
+
+        public void setValue(Controls.Control value) {
+            this.value = value;
+        }
+    }
+
+    public static class DropDownCtrlUpdateSelectedPos extends IntUpdate {
+
+    }
+
+    public static class RecyclerCtrlAddItem extends IntUpdate {
+        private Controls.Control value2;
+
+        public Controls.Control getValue2() {
+            return value2;
+        }
+
+        public void setValue2(Controls.Control value) {
+            this.value2 = value;
+        }
+    }
+
+    public static class RecyclerCtrlUpdateItem extends IntUpdate {
+
+    }
+
+    public static class RecyclerCtrlRemoveItem extends IntUpdate {
+
+    }
+
+    public static class RecyclerCtrlUpdateRecyclerConfig extends IntUpdate {
+        private Controls.RecyclerCtrl.RecyclerLayoutType value2;
+        private Controls.RecyclerCtrl.RecyclerOrientation value3;
+
+        public Controls.RecyclerCtrl.RecyclerLayoutType getValue2() {
+            return value2;
+        }
+
+        public void setValue2(Controls.RecyclerCtrl.RecyclerLayoutType value2) {
+            this.value2 = value2;
+        }
+
+        public Controls.RecyclerCtrl.RecyclerOrientation getValue3() {
+            return value3;
+        }
+
+        public void setValue3(Controls.RecyclerCtrl.RecyclerOrientation value3) {
+            this.value3 = value3;
+        }
+    }
 }

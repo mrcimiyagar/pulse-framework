@@ -15,6 +15,7 @@ import java.util.Hashtable;
 import java.util.List;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import kasper.android.pulseframework.R;
 import kasper.android.pulseframework.engines.UiInitiatorEngine;
 import kasper.android.pulseframework.engines.UiUpdaterEngine;
@@ -26,6 +27,8 @@ import kasper.android.pulseframework.utils.GraphicsHelper;
 public class PulseView extends RelativeLayout {
 
     private Hashtable<String, Pair<Controls.Control, View>> idTable;
+    private UiInitiatorEngine uiInitiatorEngine;
+    private UiUpdaterEngine uiUpdaterEngine;
 
     public PulseView(Context context) {
         super(context);
@@ -48,13 +51,22 @@ public class PulseView extends RelativeLayout {
     }
 
     private void init() {
+        this.idTable = new Hashtable<>();
         GraphicsHelper.setup(getContext());
         this.setFocusableInTouchMode(true);
     }
 
+    public void setup(AppCompatActivity activity) {
+        this.uiInitiatorEngine = new UiInitiatorEngine(
+                getContext(), getResources().getString(R.string.app_name),
+                activity::runOnUiThread);
+        this.uiUpdaterEngine = new UiUpdaterEngine(
+                getContext(), getResources().getString(R.string.app_name),
+                activity::runOnUiThread);
+    }
+
     public void buildUi(Controls.Control control) {
         this.removeAllViews();
-        UiInitiatorEngine uiInitiatorEngine = new UiInitiatorEngine(getContext(), getResources().getString(R.string.app_name));
         Tuple<View, List<Pair<Controls.Control, View>>
                 , Hashtable<String, Pair<Controls.Control, View>>> result =
                 uiInitiatorEngine.buildViewTree(Controls.PanelCtrl.LayoutType.RELATIVE, control);
@@ -82,8 +94,7 @@ public class PulseView extends RelativeLayout {
     }
 
     public void updateUi(Updates.Update update) {
-        new UiUpdaterEngine(getContext(), getResources()
-                .getString(R.string.app_name)).updateUi(idTable, update);
+        uiUpdaterEngine.updateUi(idTable, update);
     }
 
     public void updateBatchUi(String json) {
@@ -96,8 +107,7 @@ public class PulseView extends RelativeLayout {
     }
 
     public void updateBatchUi(List<Updates.Update> updates) {
-        new UiUpdaterEngine(getContext(), getResources()
-                .getString(R.string.app_name)).updateBatchUi(idTable, updates);
+        uiUpdaterEngine.updateBatchUi(idTable, updates);
     }
 
     private ObjectMapper initMapper() {
