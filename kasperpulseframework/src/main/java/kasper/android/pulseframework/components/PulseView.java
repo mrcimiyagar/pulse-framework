@@ -16,9 +16,11 @@ import java.util.List;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import kasper.android.pulseframework.R;
+import kasper.android.pulseframework.engines.UiAnimatorEngine;
 import kasper.android.pulseframework.engines.UiInitiatorEngine;
 import kasper.android.pulseframework.engines.UiUpdaterEngine;
+import kasper.android.pulseframework.interfaces.IAnimToUpdate;
+import kasper.android.pulseframework.models.Anims;
 import kasper.android.pulseframework.models.Controls;
 import kasper.android.pulseframework.models.Tuple;
 import kasper.android.pulseframework.models.Updates;
@@ -29,6 +31,7 @@ public class PulseView extends RelativeLayout {
     private Hashtable<String, Pair<Controls.Control, View>> idTable;
     private UiInitiatorEngine uiInitiatorEngine;
     private UiUpdaterEngine uiUpdaterEngine;
+    private UiAnimatorEngine uiAnimatorEngine;
 
     public PulseView(Context context) {
         super(context);
@@ -63,6 +66,8 @@ public class PulseView extends RelativeLayout {
         this.uiUpdaterEngine = new UiUpdaterEngine(
                 getContext(),
                 activity::runOnUiThread);
+        this.uiAnimatorEngine = new UiAnimatorEngine(
+                update -> uiUpdaterEngine.updateUi(idTable, update));
     }
 
     public void buildUi(Controls.Control control) {
@@ -108,6 +113,19 @@ public class PulseView extends RelativeLayout {
 
     public void updateBatchUi(List<Updates.Update> updates) {
         uiUpdaterEngine.updateBatchUi(idTable, updates);
+    }
+
+    public void animateUi(Anims.Anim anim) {
+        uiAnimatorEngine.animateUi(idTable, anim);
+    }
+
+    public void animateUi(String json) {
+        try {
+            Anims.Anim anim = initMapper().readValue(json, Anims.Anim.class);
+            animateUi(anim);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     private ObjectMapper initMapper() {

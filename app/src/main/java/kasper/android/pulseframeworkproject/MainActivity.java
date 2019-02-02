@@ -9,9 +9,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import androidx.appcompat.app.AppCompatActivity;
 import kasper.android.pulseframework.components.PulseView;
+import kasper.android.pulseframework.models.Anims;
 import kasper.android.pulseframework.models.Data;
 import kasper.android.pulseframework.models.Controls;
 import kasper.android.pulseframework.models.Updates;
@@ -90,6 +93,7 @@ public class MainActivity extends AppCompatActivity {
         welcomeTextsEl.getControls().add(messageEl);
 
         Controls.PanelCtrl clockEl = new Controls.PanelCtrl();
+        clockEl.setId("Clock");
         clockEl.setWidth(300);
         clockEl.setHeight(300);
         clockEl.setLayoutType(Controls.PanelCtrl.LayoutType.RELATIVE);
@@ -458,25 +462,25 @@ public class MainActivity extends AppCompatActivity {
             ex.printStackTrace();
         }
 
-        new Handler().postDelayed(() -> {
-            Updates.ControlUpdateMarginTop updateMarginTop = new Updates.ControlUpdateMarginTop();
-            updateMarginTop.setControlId("WelcomeMessageEl");
-            updateMarginTop.setValue(224);
-            pulseView.updateUi(updateMarginTop);
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Updates.ControlUpdateRotationY updateRotationY = new Updates.ControlUpdateRotationY();
+                        updateRotationY.setControlId("Clock");
+                        updateRotationY.setValue(0);
+                        pulseView.updateUi(updateRotationY);
 
-            new Handler().postDelayed(() -> {
-                Updates.ControlUpdateHeight updateHeight = new Updates.ControlUpdateHeight();
-                updateHeight.setControlId("WelcomeMessageEl");
-                updateHeight.setValue(200);
-                pulseView.updateUi(updateHeight);
-
-                new Handler().postDelayed(() -> {
-                    Updates.LineChartCtrlUpdateLineColor updateLineColor = new Updates.LineChartCtrlUpdateLineColor();
-                    updateLineColor.setControlId("LineChartEl");
-                    updateLineColor.setValue("#00ff00");
-                    pulseView.updateUi(updateLineColor);
-                }, 3000);
-            }, 3000);
-        }, 3000);
+                        Anims.ControlAnimRotationY rotationY = new Anims.ControlAnimRotationY();
+                        rotationY.setControlId("Clock");
+                        rotationY.setDuration(2000);
+                        rotationY.setFinalValue(360);
+                        pulseView.animateUi(rotationY);
+                    }
+                });
+            }
+        }, 1000, 2000);
     }
 }
