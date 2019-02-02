@@ -1,7 +1,31 @@
 package kasper.android.pulseframework.models;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 public class Anims {
 
+    @JsonTypeInfo(
+            use = JsonTypeInfo.Id.NAME,
+            include = JsonTypeInfo.As.PROPERTY,
+            property = "type")
+    @JsonSubTypes({
+            @JsonSubTypes.Type(value = ControlAnimX.class, name = "PanelCtrl"),
+            @JsonSubTypes.Type(value = ControlAnimY.class, name = "PanelCtrl"),
+            @JsonSubTypes.Type(value = ControlAnimWidth.class, name = "PanelCtrl"),
+            @JsonSubTypes.Type(value = ControlAnimHeight.class, name = "PanelCtrl"),
+            @JsonSubTypes.Type(value = ControlAnimMarginLeft.class, name = "PanelCtrl"),
+            @JsonSubTypes.Type(value = ControlAnimMarginTop.class, name = "PanelCtrl"),
+            @JsonSubTypes.Type(value = ControlAnimMarginRight.class, name = "PanelCtrl"),
+            @JsonSubTypes.Type(value = ControlAnimMarginBottom.class, name = "PanelCtrl"),
+            @JsonSubTypes.Type(value = ControlAnimPaddingLeft.class, name = "PanelCtrl"),
+            @JsonSubTypes.Type(value = ControlAnimPaddingTop.class, name = "PanelCtrl"),
+            @JsonSubTypes.Type(value = ControlAnimPaddingRight.class, name = "PanelCtrl"),
+            @JsonSubTypes.Type(value = ControlAnimPaddingBottom.class, name = "PanelCtrl"),
+            @JsonSubTypes.Type(value = ControlAnimRotationX.class, name = "PanelCtrl"),
+            @JsonSubTypes.Type(value = ControlAnimRotationY.class, name = "PanelCtrl"),
+            @JsonSubTypes.Type(value = ControlAnimRotation.class, name = "PanelCtrl"),
+    })
     public static class Anim {
         private String controlId;
         private long duration;
