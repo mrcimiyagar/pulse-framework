@@ -111,4 +111,8 @@ public class Bindings {
     public static class MirrorToRotation extends Mirror {
 
     }
+
+    public static class MirrorToElevation extends Mirror {
+
+    }
 }
