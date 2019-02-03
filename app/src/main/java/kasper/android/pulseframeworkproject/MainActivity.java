@@ -1,6 +1,5 @@
 package kasper.android.pulseframeworkproject;
 
-import android.os.Handler;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -15,6 +14,8 @@ import java.util.TimerTask;
 import androidx.appcompat.app.AppCompatActivity;
 import kasper.android.pulseframework.components.PulseView;
 import kasper.android.pulseframework.models.Anims;
+import kasper.android.pulseframework.models.Bindings;
+import kasper.android.pulseframework.models.Codes;
 import kasper.android.pulseframework.models.Data;
 import kasper.android.pulseframework.models.Controls;
 import kasper.android.pulseframework.models.Updates;
@@ -161,6 +162,7 @@ public class MainActivity extends AppCompatActivity {
         hourHand.getControls().add(hourHalfHand);
 
         Controls.PanelCtrl minuteHand = new Controls.PanelCtrl();
+        minuteHand.setId("MinuteHand");
         minuteHand.setWidth(200);
         minuteHand.setHeight(8);
         minuteHand.setLayoutType(Controls.PanelCtrl.LayoutType.RELATIVE);
@@ -462,25 +464,61 @@ public class MainActivity extends AppCompatActivity {
             ex.printStackTrace();
         }
 
-        new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Updates.ControlUpdateRotationY updateRotationY = new Updates.ControlUpdateRotationY();
-                        updateRotationY.setControlId("Clock");
-                        updateRotationY.setValue(0);
-                        pulseView.updateUi(updateRotationY);
+        List<Codes.Code> codes = new ArrayList<>();
 
-                        Anims.ControlAnimRotationY rotationY = new Anims.ControlAnimRotationY();
-                        rotationY.setControlId("Clock");
-                        rotationY.setDuration(2000);
-                        rotationY.setFinalValue(360);
-                        pulseView.animateUi(rotationY);
-                    }
-                });
-            }
-        }, 1000, 2000);
+        // -----------------------------------------------------------------------------------------
+
+        Codes.Value clockAngleInitValue = new Codes.Value();
+        clockAngleInitValue.setValueType(Codes.DataType.INT);
+        clockAngleInitValue.setValue(0);
+
+        Codes.Variable clockAngleVar = new Codes.Variable();
+        clockAngleVar.setName("clockAngleVar");
+        clockAngleVar.setValue(clockAngleInitValue);
+
+        Codes.Definition definition = new Codes.Definition();
+        definition.setVariable(clockAngleVar);
+
+        pulseView.runCommand(definition);
+
+        // -----------------------------------------------------------------------------------------
+
+        Bindings.MirrorToRotation mirrorToRotation = new Bindings.MirrorToRotation();
+        mirrorToRotation.setCtrlName("MinuteHand");
+        mirrorToRotation.setVarName("clockAngleVar");
+        mirrorToRotation.setAction(Bindings.Mirror.ActionType.BIND);
+
+        pulseView.modifyMirror(mirrorToRotation);
+
+        Codes.Task task = new Codes.Task();
+        task.setName("ClockTask");
+        task.setPeriod(1000);
+        task.setCodes(new ArrayList<>());
+
+        Codes.Value stepValue = new Codes.Value();
+        stepValue.setValueType(Codes.DataType.INT);
+        stepValue.setValue(6);
+
+        Codes.MathExpSum mathExpSum = new Codes.MathExpSum();
+        mathExpSum.setValue1(clockAngleVar);
+        mathExpSum.setValue2(stepValue);
+
+        Codes.Assignment assignment = new Codes.Assignment();
+        assignment.setVariable(clockAngleVar);
+        assignment.setValue(mathExpSum);
+
+        task.getCodes().add(assignment);
+
+        Codes.DefineTask defineTask = new Codes.DefineTask();
+        defineTask.setTask(task);
+
+        codes.add(defineTask);
+
+        Codes.StartTask startTask = new Codes.StartTask();
+        startTask.setTaskName("ClockTask");
+
+        codes.add(startTask);
+
+        pulseView.runCommands(codes);
     }
 }

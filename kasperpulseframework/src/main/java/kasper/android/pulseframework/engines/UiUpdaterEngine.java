@@ -46,6 +46,7 @@ import kasper.android.pulseframework.adapters.DropDownAdapter;
 import kasper.android.pulseframework.adapters.RecyclerAdapter;
 import kasper.android.pulseframework.interfaces.IMainThreadRunner;
 import kasper.android.pulseframework.locks.Locks;
+import kasper.android.pulseframework.models.Bindings;
 import kasper.android.pulseframework.models.Controls;
 import kasper.android.pulseframework.models.Data;
 import kasper.android.pulseframework.models.Tuple;
@@ -63,6 +64,46 @@ public class UiUpdaterEngine {
     public UiUpdaterEngine(Context context, IMainThreadRunner mainThreadRunner) {
         this.context = context;
         this.mainThreadRunner = mainThreadRunner;
+    }
+
+    public void handleMirrorEffect(Hashtable<String, Pair<Controls.Control, View>> idTable
+            , Bindings.Mirror mirror, Object value) {
+        Updates.Update update = null;
+        if (mirror instanceof Bindings.MirrorToX) {
+            update = new Updates.ControlUpdateX();
+            ((Updates.ControlUpdateX) update).setValue(convertDoubleToInt(value));
+        } else if (mirror instanceof Bindings.MirrorToY) {
+            update = new Updates.ControlUpdateY();
+            ((Updates.ControlUpdateY) update).setValue(convertDoubleToInt(value));
+        } else if (mirror instanceof Bindings.MirrorToRotation) {
+            update = new Updates.ControlUpdateRotation();
+            ((Updates.ControlUpdateRotation) update).setValue(convertDoubleToInt(value + ""));
+        }
+        if (update != null) {
+            update.setControlId(mirror.getCtrlName());
+            updateUi(idTable, update);
+        }
+    }
+
+    private int convertDoubleToInt(Object value) {
+        String valueStr = value + "";
+        if (valueStr.endsWith(".0"))
+            valueStr = valueStr.substring(0, valueStr.length() - 2);
+        return Integer.valueOf(valueStr);
+    }
+
+    private long convertDoubleToLong(Object value) {
+        String valueStr = value + "";
+        if (valueStr.endsWith(".0"))
+            valueStr = valueStr.substring(0, valueStr.length() - 2);
+        return Long.valueOf(valueStr);
+    }
+
+    private short convertDoubleToShort(Object value) {
+        String valueStr = value + "";
+        if (valueStr.endsWith(".0"))
+            valueStr = valueStr.substring(0, valueStr.length() - 2);
+        return Short.valueOf(valueStr);
     }
 
     @SuppressLint("RtlHardcoded")
@@ -1061,7 +1102,7 @@ public class UiUpdaterEngine {
             Locks.runSafeOnIdTable(() -> {
                 Controls.Control control = pair.first;
                 View view = pair.second;
-                new Handler().post(() -> updateUiAsync(control, view, idTable, update));
+                mainThreadRunner.runOnMainThread(() -> updateUiAsync(control, view, idTable, update));
             });
         }
     }

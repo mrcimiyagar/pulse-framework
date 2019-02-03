@@ -11,16 +11,19 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import kasper.android.pulseframework.engines.EREngine;
 import kasper.android.pulseframework.engines.UiAnimatorEngine;
 import kasper.android.pulseframework.engines.UiInitiatorEngine;
 import kasper.android.pulseframework.engines.UiUpdaterEngine;
-import kasper.android.pulseframework.interfaces.IAnimToUpdate;
 import kasper.android.pulseframework.models.Anims;
+import kasper.android.pulseframework.models.Bindings;
+import kasper.android.pulseframework.models.Codes;
 import kasper.android.pulseframework.models.Controls;
 import kasper.android.pulseframework.models.Tuple;
 import kasper.android.pulseframework.models.Updates;
@@ -32,6 +35,7 @@ public class PulseView extends RelativeLayout {
     private UiInitiatorEngine uiInitiatorEngine;
     private UiUpdaterEngine uiUpdaterEngine;
     private UiAnimatorEngine uiAnimatorEngine;
+    private EREngine erEngine;
 
     public PulseView(Context context) {
         super(context);
@@ -68,6 +72,8 @@ public class PulseView extends RelativeLayout {
                 activity::runOnUiThread);
         this.uiAnimatorEngine = new UiAnimatorEngine(
                 update -> uiUpdaterEngine.updateUi(idTable, update));
+        this.erEngine = new EREngine(
+                (mirror, value) -> uiUpdaterEngine.handleMirrorEffect(idTable, mirror, value));
     }
 
     public void buildUi(Controls.Control control) {
@@ -104,8 +110,8 @@ public class PulseView extends RelativeLayout {
 
     public void updateBatchUi(String json) {
         try {
-            Updates.Update update = initMapper().readValue(json, new TypeReference<List<Updates.Update>>(){});
-            updateUi(update);
+            List<Updates.Update> updates = initMapper().readValue(json, new TypeReference<List<Updates.Update>>(){});
+            updateBatchUi(updates);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -123,6 +129,45 @@ public class PulseView extends RelativeLayout {
         try {
             Anims.Anim anim = initMapper().readValue(json, Anims.Anim.class);
             animateUi(anim);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public void runCommand(Codes.Code code) {
+        this.runCommands(Collections.singletonList(code));
+    }
+
+    public void runCommands(List<Codes.Code> codes) {
+        this.erEngine.run(codes);
+    }
+
+    public void runCommand(String json) {
+        try {
+            Codes.Code code = initMapper().readValue(json, Codes.Code.class);
+            runCommand(code);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public void runCommands(String json) {
+        try {
+            List<Codes.Code> codes = initMapper().readValue(json, new TypeReference<List<Codes.Code>>(){});
+            runCommands(codes);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public void modifyMirror(Bindings.Mirror mirror) {
+        this.erEngine.modifyMirror(mirror);
+    }
+
+    public void modifyMirror(String json) {
+        try {
+            Bindings.Mirror mirror = initMapper().readValue(json, Bindings.Mirror.class);
+            modifyMirror(mirror);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
