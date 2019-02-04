@@ -21,6 +21,7 @@ import kasper.android.pulseframework.engines.EREngine;
 import kasper.android.pulseframework.engines.UiAnimatorEngine;
 import kasper.android.pulseframework.engines.UiInitiatorEngine;
 import kasper.android.pulseframework.engines.UiUpdaterEngine;
+import kasper.android.pulseframework.locks.Locks;
 import kasper.android.pulseframework.models.Anims;
 import kasper.android.pulseframework.models.Bindings;
 import kasper.android.pulseframework.models.Codes;
@@ -64,6 +65,7 @@ public class PulseView extends RelativeLayout {
     }
 
     public void setup(AppCompatActivity activity) {
+        Locks.setup(activity::runOnUiThread);
         this.uiInitiatorEngine = new UiInitiatorEngine(
                 getContext(),
                 activity::runOnUiThread);

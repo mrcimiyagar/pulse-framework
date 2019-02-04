@@ -4,7 +4,11 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.graphics.ColorFilter;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.OvalShape;
+import android.graphics.drawable.shapes.RectShape;
 import android.net.Uri;
 
 import androidx.cardview.widget.CardView;
@@ -21,12 +25,12 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
+import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -55,10 +59,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import kasper.android.pulseframework.R;
 import kasper.android.pulseframework.adapters.DropDownAdapter;
 import kasper.android.pulseframework.adapters.RecyclerAdapter;
+import kasper.android.pulseframework.components.CustomSeekBar;
 import kasper.android.pulseframework.interfaces.IMainThreadRunner;
 import kasper.android.pulseframework.models.Data;
 import kasper.android.pulseframework.models.Controls;
 import kasper.android.pulseframework.models.Tuple;
+import kasper.android.pulseframework.utils.FieldValidator;
 import kasper.android.pulseframework.utils.GraphicsHelper;
 import tcking.github.com.giraffeplayer2.VideoView;
 
@@ -81,7 +87,7 @@ public class UiInitiatorEngine {
         List<Pair<Controls.Control, View>> statefulCtrls = new ArrayList<>();
         if (control instanceof Controls.PanelCtrl) {
             Controls.PanelCtrl panelCtrl = (Controls.PanelCtrl) control;
-            if (!isFieldEmpty(panelCtrl.getLayoutType())) {
+            if (!FieldValidator.isFieldEmpty(panelCtrl.getLayoutType())) {
                 if (panelCtrl.getLayoutType() == Controls.PanelCtrl.LayoutType.RELATIVE) {
                     RelativeLayout relativeLayout = new RelativeLayout(context);
                     for (Controls.Control el : panelCtrl.getControls()) {
@@ -137,13 +143,13 @@ public class UiInitiatorEngine {
         } else if (control instanceof Controls.TextCtrl) {
             Controls.TextCtrl textCtrl = (Controls.TextCtrl) control;
             TextView textView = new TextView(context);
-            if (!isFieldEmpty(textCtrl.getText()))
+            if (!FieldValidator.isFieldEmpty(textCtrl.getText()))
                 textView.setText(textCtrl.getText());
-            if (!isFieldEmpty(textCtrl.getTextSize()))
+            if (!FieldValidator.isFieldEmpty(textCtrl.getTextSize()))
                 textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, textCtrl.getTextSize());
-            if (!isFieldEmpty(textCtrl.getTextColor()))
+            if (!FieldValidator.isFieldEmpty(textCtrl.getTextColor()))
                 textView.setTextColor(Color.parseColor(textCtrl.getTextColor()));
-            if (!isFieldEmpty(textCtrl.getGravityType())) {
+            if (!FieldValidator.isFieldEmpty(textCtrl.getGravityType())) {
                 if (textCtrl.getGravityType() == Controls.TextCtrl.GravityType.LEFT) {
                     textView.setGravity(Gravity.LEFT);
                 } else if (textCtrl.getGravityType() == Controls.TextCtrl.GravityType.TOP) {
@@ -164,11 +170,11 @@ public class UiInitiatorEngine {
         } else if (control instanceof Controls.ImageCtrl) {
             Controls.ImageCtrl imageCtrl = (Controls.ImageCtrl) control;
             ImageView imageView = new ImageView(context);
-            if (!isFieldEmpty(imageCtrl.getScaleType()))
+            if (!FieldValidator.isFieldEmpty(imageCtrl.getScaleType()))
                 imageView.setScaleType(ImageView.ScaleType.valueOf(
                         ImageView.ScaleType.class,
                         imageCtrl.getScaleType().toString()));
-            if (!isFieldEmpty(imageCtrl.getImageUrl()))
+            if (!FieldValidator.isFieldEmpty(imageCtrl.getImageUrl()))
                 Glide.with(context)
                         .load(imageCtrl.getImageUrl())
                         .into(imageView);
@@ -176,24 +182,24 @@ public class UiInitiatorEngine {
         } else if (control instanceof Controls.InputFieldCtrl) {
             Controls.InputFieldCtrl inputFieldCtrl = (Controls.InputFieldCtrl) control;
             EditText editText = new EditText(context);
-            if (!isFieldEmpty(inputFieldCtrl.getHint()))
+            if (!FieldValidator.isFieldEmpty(inputFieldCtrl.getHint()))
                 editText.setHint(inputFieldCtrl.getHint());
-            if (!isFieldEmpty(inputFieldCtrl.getHintColor()))
+            if (!FieldValidator.isFieldEmpty(inputFieldCtrl.getHintColor()))
                 editText.setHintTextColor(Color.parseColor(inputFieldCtrl.getHintColor()));
             else
                 editText.setHintTextColor(Color.GRAY);
-            if (!isFieldEmpty(inputFieldCtrl.getTextColor()))
+            if (!FieldValidator.isFieldEmpty(inputFieldCtrl.getTextColor()))
                 editText.setTextColor(Color.parseColor(inputFieldCtrl.getTextColor()));
             else
                 editText.setTextColor(Color.BLACK);
-            if (!isFieldEmpty(inputFieldCtrl.getTextSize()))
+            if (!FieldValidator.isFieldEmpty(inputFieldCtrl.getTextSize()))
                 editText.setTextSize(TypedValue.COMPLEX_UNIT_SP, inputFieldCtrl.getTextSize());
             else
                 editText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-            if (!isFieldEmpty(inputFieldCtrl.getLineColor()))
+            if (!FieldValidator.isFieldEmpty(inputFieldCtrl.getLineColor()))
                 editText.getBackground().setColorFilter(
                         Color.parseColor(inputFieldCtrl.getLineColor()), PorterDuff.Mode.SRC_ATOP);
-            if (!isFieldEmpty(inputFieldCtrl.getText()))
+            if (!FieldValidator.isFieldEmpty(inputFieldCtrl.getText()))
                 editText.setText(inputFieldCtrl.getText());
             editText.addTextChangedListener(new TextWatcher() {
                 @Override
@@ -215,13 +221,13 @@ public class UiInitiatorEngine {
         } else if (control instanceof Controls.ButtonCtrl) {
             Controls.ButtonCtrl buttonCtrl = (Controls.ButtonCtrl) control;
             Button button = new Button(context);
-            if (!isFieldEmpty(buttonCtrl.getCaption()))
+            if (!FieldValidator.isFieldEmpty(buttonCtrl.getCaption()))
                 button.setText(buttonCtrl.getCaption());
-            if (!isFieldEmpty(buttonCtrl.getCaptionSize()))
+            if (!FieldValidator.isFieldEmpty(buttonCtrl.getCaptionSize()))
                 button.setTextSize(TypedValue.COMPLEX_UNIT_SP, buttonCtrl.getCaptionSize());
             else
                 button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-            if (!isFieldEmpty(buttonCtrl.getCaptionColor()))
+            if (!FieldValidator.isFieldEmpty(buttonCtrl.getCaptionColor()))
                 button.setTextColor(Color.parseColor(buttonCtrl.getCaptionColor()));
             else
                 button.setTextColor(Color.BLACK);
@@ -233,13 +239,13 @@ public class UiInitiatorEngine {
                 circleProgressView.setCircleBroken(progressCtrl.isCircleBroken());
                 circleProgressView.setTrackWidth(progressCtrl.getTrackWidth());
                 circleProgressView.setFillEnabled(progressCtrl.isFillEnabled());
-                if (!isFieldEmpty(progressCtrl.getProgressTextSize()))
+                if (!FieldValidator.isFieldEmpty(progressCtrl.getProgressTextSize()))
                     circleProgressView.setProgressTextSize(progressCtrl.getProgressTextSize());
-                if (!isFieldEmpty(progressCtrl.getProgressTextColor()))
+                if (!FieldValidator.isFieldEmpty(progressCtrl.getProgressTextColor()))
                     circleProgressView.setProgressTextColor(
                             Color.parseColor(progressCtrl.getProgressTextColor()));
                 circleProgressView.setTrackEnabled(progressCtrl.isTrackEnabled());
-                if (!isFieldEmpty(progressCtrl.getTrackColor()))
+                if (!FieldValidator.isFieldEmpty(progressCtrl.getTrackColor()))
                     circleProgressView.setTrackColor(Color.parseColor(progressCtrl.getTrackColor()));
                 circleProgressView.setProgressTextVisibility(progressCtrl.isProgressTextVisibility());
                 circleProgressView.setGraduatedEnabled(progressCtrl.isGraduatedEnabled());
@@ -254,20 +260,20 @@ public class UiInitiatorEngine {
                 result = circleProgressView;
             } else if (progressCtrl.getProgressType() == Controls.ProgressCtrl.ProgressType.HORIZONTAL) {
                 HorizontalProgressView horizontalProgressView = new HorizontalProgressView(context);
-                if (!isFieldEmpty(progressCtrl.getTrackWidth()))
+                if (!FieldValidator.isFieldEmpty(progressCtrl.getTrackWidth()))
                     horizontalProgressView.setTrackWidth(progressCtrl.getTrackWidth());
-                if (!isFieldEmpty(progressCtrl.getProgressTextSize()))
+                if (!FieldValidator.isFieldEmpty(progressCtrl.getProgressTextSize()))
                     horizontalProgressView.setProgressTextSize(progressCtrl.getProgressTextSize());
-                if (!isFieldEmpty(progressCtrl.getProgressTextColor()))
+                if (!FieldValidator.isFieldEmpty(progressCtrl.getProgressTextColor()))
                     horizontalProgressView.setProgressTextColor(
                             Color.parseColor(progressCtrl.getProgressTextColor()));
                 horizontalProgressView.setTrackEnabled(progressCtrl.isTrackEnabled());
-                if (!isFieldEmpty(progressCtrl.getTrackColor()))
+                if (!FieldValidator.isFieldEmpty(progressCtrl.getTrackColor()))
                     horizontalProgressView.setTrackColor(Color.parseColor(progressCtrl.getTrackColor()));
                 horizontalProgressView.setProgressTextVisibility(progressCtrl.isProgressTextVisibility());
                 horizontalProgressView.setProgressCornerRadius(
                         GraphicsHelper.dpToPx(progressCtrl.getProgressCornerRadius()));
-                if (!isFieldEmpty(progressCtrl.getProgressTextPaddingBottom()))
+                if (!FieldValidator.isFieldEmpty(progressCtrl.getProgressTextPaddingBottom()))
                     horizontalProgressView.setProgressTextPaddingBottom(
                             GraphicsHelper.dpToPx(progressCtrl.getProgressTextPaddingBottom()));
                 horizontalProgressView.setProgressTextMoved(progressCtrl.isProgressTextMoved());
@@ -279,7 +285,7 @@ public class UiInitiatorEngine {
             videoView.getVideoInfo().setPortraitWhenFullScreen(true);
             videoView.setVideoPath(Uri.parse(videoPlayerCtrl
                     .getVideoUrl()).toString());
-            if (!isFieldEmpty(videoPlayerCtrl.getProgress()))
+            if (!FieldValidator.isFieldEmpty(videoPlayerCtrl.getProgress()))
                 videoView.getPlayer().seekTo(videoPlayerCtrl.getProgress());
             if (videoPlayerCtrl.isPlaying())
                 videoView.getPlayer().start();
@@ -298,9 +304,9 @@ public class UiInitiatorEngine {
             LineChartView lineChartView = new LineChartView(context);
             LineSet dataset = initLineChartView((Controls.LineChartCtrl) control);
             lineChartView.addData(dataset);
-            if (!isFieldEmpty(chartEl.getAxisColor()))
+            if (!FieldValidator.isFieldEmpty(chartEl.getAxisColor()))
                 lineChartView.setAxisColor(Color.parseColor(chartEl.getAxisColor()));
-            if (!isFieldEmpty(chartEl.getLabelsColor()))
+            if (!FieldValidator.isFieldEmpty(chartEl.getLabelsColor()))
                 lineChartView.setLabelsColor(Color.parseColor(chartEl.getLabelsColor()));
             lineChartView.setClickablePointRadius(GraphicsHelper.dpToPx(chartEl.getDotsRadius()));
             lineChartView.show();
@@ -308,16 +314,16 @@ public class UiInitiatorEngine {
         } else if (control instanceof Controls.HorizontalBarChartCtrl) {
             Controls.HorizontalBarChartCtrl chartEl = (Controls.HorizontalBarChartCtrl) control;
             HorizontalBarChartView horizontalBarChartView = new HorizontalBarChartView(context);
-            if (!isFieldEmpty(chartEl.getBarSpacing()))
+            if (!FieldValidator.isFieldEmpty(chartEl.getBarSpacing()))
                 horizontalBarChartView.setBarSpacing(GraphicsHelper.dpToPx(chartEl.getBarSpacing()));
-            if (!isFieldEmpty(chartEl.getSetSpacing()))
+            if (!FieldValidator.isFieldEmpty(chartEl.getSetSpacing()))
                 horizontalBarChartView.setSetSpacing(GraphicsHelper.dpToPx(chartEl.getSetSpacing()));
-            if (!isFieldEmpty(chartEl.getBarBackgroundColor()))
+            if (!FieldValidator.isFieldEmpty(chartEl.getBarBackgroundColor()))
                 horizontalBarChartView.setBarBackgroundColor(Color.parseColor(chartEl.getBarBackgroundColor()));
-            if (!isFieldEmpty(chartEl.getRoundCorners()))
+            if (!FieldValidator.isFieldEmpty(chartEl.getRoundCorners()))
                 horizontalBarChartView.setRoundCorners(GraphicsHelper.dpToPx(chartEl.getRoundCorners()));
             BarSet dataset = new BarSet();
-            if (!isFieldEmpty(chartEl.getBarsColor()))
+            if (!FieldValidator.isFieldEmpty(chartEl.getBarsColor()))
                 dataset.setColor(Color.parseColor(chartEl.getBarsColor()));
             Iterator<Data.Point> pointIterator = chartEl.getPoints().iterator();
             Iterator<Data.StringValue> barColorIterator = chartEl.getBarColors().iterator();
@@ -329,25 +335,25 @@ public class UiInitiatorEngine {
                 dataset.addBar(bar);
             }
             horizontalBarChartView.addData(dataset);
-            if (!isFieldEmpty(chartEl.getAxisColor()))
+            if (!FieldValidator.isFieldEmpty(chartEl.getAxisColor()))
                 horizontalBarChartView.setAxisColor(Color.parseColor(chartEl.getAxisColor()));
-            if (!isFieldEmpty(chartEl.getLabelsColor()))
+            if (!FieldValidator.isFieldEmpty(chartEl.getLabelsColor()))
                 horizontalBarChartView.setLabelsColor(Color.parseColor(chartEl.getLabelsColor()));
             horizontalBarChartView.show();
             result = horizontalBarChartView;
         } else if (control instanceof Controls.StackBarChartCtrl) {
             Controls.StackBarChartCtrl stackBarChartCtrl = (Controls.StackBarChartCtrl) control;
             StackBarChartView stackBarChartView = new StackBarChartView(context);
-            if (!isFieldEmpty(stackBarChartCtrl.getBarSpacing()))
+            if (!FieldValidator.isFieldEmpty(stackBarChartCtrl.getBarSpacing()))
                 stackBarChartView.setBarSpacing(GraphicsHelper.dpToPx(stackBarChartCtrl.getBarSpacing()));
-            if (!isFieldEmpty(stackBarChartCtrl.getBarBackgroundColor()))
+            if (!FieldValidator.isFieldEmpty(stackBarChartCtrl.getBarBackgroundColor()))
                 stackBarChartView.setBarBackgroundColor(
                         Color.parseColor(stackBarChartCtrl.getBarBackgroundColor()));
-            if (!isFieldEmpty(stackBarChartCtrl.getRoundCorners()))
+            if (!FieldValidator.isFieldEmpty(stackBarChartCtrl.getRoundCorners()))
                 stackBarChartView.setRoundCorners(
                         GraphicsHelper.dpToPx(stackBarChartCtrl.getRoundCorners()));
             BarSet dataset = new BarSet();
-            if (!isFieldEmpty(stackBarChartCtrl.getBarsColor()))
+            if (!FieldValidator.isFieldEmpty(stackBarChartCtrl.getBarsColor()))
                 dataset.setColor(Color.parseColor(stackBarChartCtrl.getBarsColor()));
             Iterator<Data.Point> pointIterator = stackBarChartCtrl.getPoints().iterator();
             Iterator<Data.StringValue> barColorIterator = stackBarChartCtrl.getBarColors().iterator();
@@ -359,9 +365,9 @@ public class UiInitiatorEngine {
                 dataset.addBar(bar);
             }
             stackBarChartView.addData(dataset);
-            if (!isFieldEmpty(stackBarChartCtrl.getAxisColor()))
+            if (!FieldValidator.isFieldEmpty(stackBarChartCtrl.getAxisColor()))
                 stackBarChartView.setAxisColor(Color.parseColor(stackBarChartCtrl.getAxisColor()));
-            if (!isFieldEmpty(stackBarChartCtrl.getLabelsColor()))
+            if (!FieldValidator.isFieldEmpty(stackBarChartCtrl.getLabelsColor()))
                 stackBarChartView.setLabelsColor(Color.parseColor(stackBarChartCtrl.getLabelsColor()));
             stackBarChartView.show();
             result = stackBarChartView;
@@ -370,17 +376,17 @@ public class UiInitiatorEngine {
                     (Controls.HorizontalStackBarChartCtrl) control;
             HorizontalStackBarChartView horizontalStackBarChartView =
                     new HorizontalStackBarChartView(context);
-            if (!isFieldEmpty(horizontalStackBarChartCtrl.getBarSpacing()))
+            if (!FieldValidator.isFieldEmpty(horizontalStackBarChartCtrl.getBarSpacing()))
                 horizontalStackBarChartView.setBarSpacing(
                         GraphicsHelper.dpToPx(horizontalStackBarChartCtrl.getBarSpacing()));
-            if (!isFieldEmpty(horizontalStackBarChartCtrl.getBarBackgroundColor()))
+            if (!FieldValidator.isFieldEmpty(horizontalStackBarChartCtrl.getBarBackgroundColor()))
                 horizontalStackBarChartView.setBarBackgroundColor(
                         Color.parseColor(horizontalStackBarChartCtrl.getBarBackgroundColor()));
-            if (!isFieldEmpty(horizontalStackBarChartCtrl.getRoundCorners()))
+            if (!FieldValidator.isFieldEmpty(horizontalStackBarChartCtrl.getRoundCorners()))
                 horizontalStackBarChartView.setRoundCorners(
                         GraphicsHelper.dpToPx(horizontalStackBarChartCtrl.getRoundCorners()));
             BarSet dataset = new BarSet();
-            if (!isFieldEmpty(horizontalStackBarChartCtrl.getBarsColor()))
+            if (!FieldValidator.isFieldEmpty(horizontalStackBarChartCtrl.getBarsColor()))
                 dataset.setColor(Color.parseColor(horizontalStackBarChartCtrl.getBarsColor()));
             Iterator<Data.Point> pointIterator = horizontalStackBarChartCtrl.getPoints().iterator();
             Iterator<Data.StringValue> barColorIterator =
@@ -393,10 +399,10 @@ public class UiInitiatorEngine {
                 dataset.addBar(bar);
             }
             horizontalStackBarChartView.addData(dataset);
-            if (!isFieldEmpty(horizontalStackBarChartCtrl.getAxisColor()))
+            if (!FieldValidator.isFieldEmpty(horizontalStackBarChartCtrl.getAxisColor()))
                 horizontalStackBarChartView.setAxisColor(
                         Color.parseColor(horizontalStackBarChartCtrl.getAxisColor()));
-            if (!isFieldEmpty(horizontalStackBarChartCtrl.getLabelsColor()))
+            if (!FieldValidator.isFieldEmpty(horizontalStackBarChartCtrl.getLabelsColor()))
                 horizontalStackBarChartView.setLabelsColor(
                         Color.parseColor(horizontalStackBarChartCtrl.getLabelsColor()));
             horizontalStackBarChartView.show();
@@ -404,16 +410,16 @@ public class UiInitiatorEngine {
         } else if (control instanceof Controls.BarChartCtrl) {
             Controls.BarChartCtrl chartEl = (Controls.BarChartCtrl) control;
             BarChartView barChartView = new BarChartView(context);
-            if (!isFieldEmpty(chartEl.getBarSpacing()))
+            if (!FieldValidator.isFieldEmpty(chartEl.getBarSpacing()))
                 barChartView.setBarSpacing(GraphicsHelper.dpToPx(chartEl.getBarSpacing()));
-            if (!isFieldEmpty(chartEl.getSetSpacing()))
+            if (!FieldValidator.isFieldEmpty(chartEl.getSetSpacing()))
                 barChartView.setSetSpacing(GraphicsHelper.dpToPx(chartEl.getSetSpacing()));
-            if (!isFieldEmpty(chartEl.getBarBackgroundColor()))
+            if (!FieldValidator.isFieldEmpty(chartEl.getBarBackgroundColor()))
                 barChartView.setBarBackgroundColor(Color.parseColor(chartEl.getBarBackgroundColor()));
-            if (!isFieldEmpty(chartEl.getRoundCorners()))
+            if (!FieldValidator.isFieldEmpty(chartEl.getRoundCorners()))
                 barChartView.setRoundCorners(GraphicsHelper.dpToPx(chartEl.getRoundCorners()));
             BarSet dataset = new BarSet();
-            if (!isFieldEmpty(chartEl.getBarsColor()))
+            if (!FieldValidator.isFieldEmpty(chartEl.getBarsColor()))
                 dataset.setColor(Color.parseColor(chartEl.getBarsColor()));
             Iterator<Data.Point> pointIterator = chartEl.getPoints().iterator();
             Iterator<Data.StringValue> barColorIterator = chartEl.getBarColors().iterator();
@@ -425,9 +431,9 @@ public class UiInitiatorEngine {
                 dataset.addBar(bar);
             }
             barChartView.addData(dataset);
-            if (!isFieldEmpty(chartEl.getAxisColor()))
+            if (!FieldValidator.isFieldEmpty(chartEl.getAxisColor()))
                 barChartView.setAxisColor(Color.parseColor(chartEl.getAxisColor()));
-            if (!isFieldEmpty(chartEl.getLabelsColor()))
+            if (!FieldValidator.isFieldEmpty(chartEl.getLabelsColor()))
                 barChartView.setLabelsColor(Color.parseColor(chartEl.getLabelsColor()));
             barChartView.show();
             result = barChartView;
@@ -451,13 +457,13 @@ public class UiInitiatorEngine {
         } else if (control instanceof Controls.OptionCtrl) {
             Controls.OptionCtrl optionCtrl = (Controls.OptionCtrl) control;
             RadioButton radioButton = new RadioButton(context);
-            if (!isFieldEmpty(optionCtrl.getCaption()))
+            if (!FieldValidator.isFieldEmpty(optionCtrl.getCaption()))
                 radioButton.setText(optionCtrl.getCaption());
-            if (!isFieldEmpty(optionCtrl.getCaptionColor()))
+            if (!FieldValidator.isFieldEmpty(optionCtrl.getCaptionColor()))
                 radioButton.setTextColor(Color.parseColor(optionCtrl.getCaptionColor()));
-            if (!isFieldEmpty(optionCtrl.getCaptionSize()))
+            if (!FieldValidator.isFieldEmpty(optionCtrl.getCaptionSize()))
                 radioButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, optionCtrl.getCaptionSize());
-            if (!isFieldEmpty(optionCtrl.getTintColor())) {
+            if (!FieldValidator.isFieldEmpty(optionCtrl.getTintColor())) {
                 ColorStateList colorStateList = new ColorStateList(
                         new int[][]{
                                 new int[]{-android.R.attr.state_checked}, // unchecked
@@ -477,13 +483,13 @@ public class UiInitiatorEngine {
         } else if (control instanceof Controls.CheckCtrl) {
             Controls.CheckCtrl checkCtrl = (Controls.CheckCtrl) control;
             CheckBox checkBox = new CheckBox(context);
-            if (!isFieldEmpty(checkCtrl.getCaption()))
+            if (!FieldValidator.isFieldEmpty(checkCtrl.getCaption()))
                 checkBox.setText(checkCtrl.getCaption());
-            if (!isFieldEmpty(checkCtrl.getCaptionColor()))
+            if (!FieldValidator.isFieldEmpty(checkCtrl.getCaptionColor()))
                 checkBox.setTextColor(Color.parseColor(checkCtrl.getCaptionColor()));
-            if (!isFieldEmpty(checkCtrl.getCaptionSize()))
+            if (!FieldValidator.isFieldEmpty(checkCtrl.getCaptionSize()))
                 checkBox.setTextSize(TypedValue.COMPLEX_UNIT_SP, checkCtrl.getCaptionSize());
-            if (!isFieldEmpty(checkCtrl.getTintColor())) {
+            if (!FieldValidator.isFieldEmpty(checkCtrl.getTintColor())) {
                 ColorStateList colorStateList = new ColorStateList(
                         new int[][]{
                                 new int[]{-android.R.attr.state_checked}, // unchecked
@@ -547,13 +553,69 @@ public class UiInitiatorEngine {
                     context, this, idTable, recyclerCtrl.getItems()));
             statefulCtrls.add(new Pair<>(recyclerCtrl, recyclerView));
             result = recyclerView;
+        } else if (control instanceof Controls.SeekBarCtrl) {
+            Controls.SeekBarCtrl seekBarCtrl = (Controls.SeekBarCtrl) control;
+            CustomSeekBar seekBar = new CustomSeekBar(context);
+            seekBar.setProgress(seekBarCtrl.getProgress());
+            if (!FieldValidator.isFieldEmpty(seekBarCtrl.getThumbColor())) {
+                seekBar.getThumb().setColorFilter(Color.parseColor(
+                        seekBarCtrl.getThumbColor()), PorterDuff.Mode.SRC_ATOP);
+                seekBar.getProgressDrawable().setColorFilter(Color.parseColor(
+                        seekBarCtrl.getThumbColor()), PorterDuff.Mode.SRC_ATOP);
+            }
+            if (!FieldValidator.isFieldEmpty(seekBarCtrl.getTrackThickness())) {
+                ShapeDrawable shapeDrawable = new ShapeDrawable();
+                shapeDrawable.setShape(new RectShape());
+                shapeDrawable.setIntrinsicWidth(GraphicsHelper.dpToPx(seekBarCtrl.getWidth()));
+                shapeDrawable.setIntrinsicHeight(GraphicsHelper.dpToPx(seekBarCtrl.getTrackThickness()));
+                seekBar.setProgressDrawable(shapeDrawable);
+                if (!FieldValidator.isFieldEmpty(seekBarCtrl.getTrackColor()))
+                    shapeDrawable.getPaint().setColor(Color.parseColor(seekBarCtrl.getTrackColor()));
+                else
+                    shapeDrawable.getPaint().setColor(Color.WHITE);
+            }
+            if (!FieldValidator.isFieldEmpty(seekBarCtrl.getTrackColor())) {
+                seekBar.getProgressDrawable().setColorFilter(Color.parseColor(
+                        seekBarCtrl.getTrackColor()), PorterDuff.Mode.MULTIPLY);
+                if (seekBar.getProgressDrawable() instanceof ShapeDrawable)
+                    ((ShapeDrawable) seekBar.getProgressDrawable())
+                            .getPaint().setColor(Color.parseColor(
+                                    seekBarCtrl.getTrackColor()));
+            }
+            if (!FieldValidator.isFieldEmpty(seekBarCtrl.getThumbSize())) {
+                ShapeDrawable th = new ShapeDrawable(new OvalShape());
+                th.setIntrinsicWidth(GraphicsHelper.dpToPx(seekBarCtrl.getThumbSize()));
+                th.setIntrinsicHeight(GraphicsHelper.dpToPx(seekBarCtrl.getThumbSize()));
+                if (!FieldValidator.isFieldEmpty(seekBarCtrl.getThumbColor()))
+                    th.getPaint().setColor(Color.parseColor(seekBarCtrl.getThumbColor()));
+                else
+                    th.getPaint().setColor(Color.WHITE);
+                seekBar.setThumb(th);
+            }
+            seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                    seekBarCtrl.setProgress(i);
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
+
+                }
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+
+                }
+            });
+            result = seekBar;
         }
 
         if (result != null) {
             result = fillGeneralProps(result, parentLayoutType, control);
         }
 
-        if (!isFieldEmpty(control.getId()))
+        if (!FieldValidator.isFieldEmpty(control.getId()))
             idTable.put(control.getId(), new Pair<>(control, result));
 
         return new Tuple<>(result, statefulCtrls, idTable);
@@ -584,14 +646,14 @@ public class UiInitiatorEngine {
                     GraphicsHelper.dpToPx(el.getPaddingRight()),
                     GraphicsHelper.dpToPx(el.getPaddingBottom()));
 
-        if (!isFieldEmpty(el.getBackColor()))
+        if (!FieldValidator.isFieldEmpty(el.getBackColor()))
             view.setBackgroundColor(Color.parseColor(el.getBackColor()));
 
         CardView outerCV = new CardView(context);
         outerCV.setRadius(GraphicsHelper.dpToPx(el.getCornerRadius()));
-        if (!isFieldEmpty(el.getBorderColor()))
+        if (!FieldValidator.isFieldEmpty(el.getBorderColor()))
             outerCV.setCardBackgroundColor(Color.parseColor(el.getBorderColor()));
-        else if (isFieldEmpty(el.getCornerRadius()))
+        else if (FieldValidator.isFieldEmpty(el.getCornerRadius()))
             outerCV.setBackgroundResource(R.drawable.empty_background);
         CardView innerCV = new CardView(context);
         CardView.LayoutParams innerCvParams = new CardView.LayoutParams(
@@ -628,7 +690,7 @@ public class UiInitiatorEngine {
 
         if (mlp != null) {
 
-            if (!isFieldEmpty(el.getWidth())) {
+            if (!FieldValidator.isFieldEmpty(el.getWidth())) {
                 if (el.getWidth() == Controls.Control.MATCH_PARENT)
                     mlp.width = ViewGroup.LayoutParams.MATCH_PARENT;
                 else if (el.getWidth() == Controls.Control.WRAP_CONTENT)
@@ -639,7 +701,7 @@ public class UiInitiatorEngine {
             else
                 mlp.width = ViewGroup.LayoutParams.WRAP_CONTENT;
 
-            if (!isFieldEmpty(el.getHeight())) {
+            if (!FieldValidator.isFieldEmpty(el.getHeight())) {
                 if (el.getHeight() == Controls.Control.MATCH_PARENT)
                     mlp.height = ViewGroup.LayoutParams.MATCH_PARENT;
                 else if (el.getHeight() == Controls.Control.WRAP_CONTENT)
@@ -686,15 +748,15 @@ public class UiInitiatorEngine {
         for (Data.Point point : chartEl.getPoints()) {
             dataset.addPoint(point.getLabel(), point.getValue());
         }
-        if (!isFieldEmpty(chartEl.getDotsColor()))
+        if (!FieldValidator.isFieldEmpty(chartEl.getDotsColor()))
             dataset.setDotsColor(Color.parseColor(chartEl.getDotsColor()));
-        if (!isFieldEmpty(chartEl.getDotsRadius()))
+        if (!FieldValidator.isFieldEmpty(chartEl.getDotsRadius()))
             dataset.setDotsRadius(GraphicsHelper.dpToPx(chartEl.getDotsRadius()));
-        if (!isFieldEmpty(chartEl.getDotsStrokeThickness()))
+        if (!FieldValidator.isFieldEmpty(chartEl.getDotsStrokeThickness()))
             dataset.setDotsStrokeThickness(GraphicsHelper.dpToPx(chartEl.getDotsStrokeThickness()));
-        if (!isFieldEmpty(chartEl.getDotsStrokeColor()))
+        if (!FieldValidator.isFieldEmpty(chartEl.getDotsStrokeColor()))
             dataset.setDotsStrokeColor(Color.parseColor(chartEl.getDotsStrokeColor()));
-        if (!isFieldEmpty(chartEl.getLineDashedIntervals())) {
+        if (!FieldValidator.isFieldEmpty(chartEl.getLineDashedIntervals())) {
             float[] lineDashedIntervals = new float[chartEl.getLineDashedIntervals().size()];
             int counter = 0;
             for (Data.FloatValue floatValue : chartEl.getLineDashedIntervals()) {
@@ -704,17 +766,17 @@ public class UiInitiatorEngine {
             dataset.setDashed(lineDashedIntervals);
         }
         dataset.setSmooth(chartEl.isLineSmooth());
-        if (!isFieldEmpty(chartEl.getLineThickness()))
+        if (!FieldValidator.isFieldEmpty(chartEl.getLineThickness()))
             dataset.setThickness(GraphicsHelper.dpToPx(chartEl.getLineThickness()));
-        if (!isFieldEmpty(chartEl.getLineColor()))
+        if (!FieldValidator.isFieldEmpty(chartEl.getLineColor()))
             dataset.setColor(Color.parseColor(chartEl.getLineColor()));
         if (!(chartEl.getLineBeginAt() == 0 && chartEl.getLineEndAt() == 0)) {
             dataset.beginAt(chartEl.getLineBeginAt());
             dataset.endAt(chartEl.getLineEndAt());
         }
-        if (!isFieldEmpty(chartEl.getFillColor()))
+        if (!FieldValidator.isFieldEmpty(chartEl.getFillColor()))
             dataset.setFill(Color.parseColor(chartEl.getFillColor()));
-        if (!isFieldEmpty(chartEl.getGradientColors())) {
+        if (!FieldValidator.isFieldEmpty(chartEl.getGradientColors())) {
             int[] gradientColors = new int[chartEl.getGradientColors().size()];
             float[] gradientValues = new float[chartEl.getGradientValues().size()];
             int counter = 0;
@@ -731,41 +793,5 @@ public class UiInitiatorEngine {
                 dataset.setGradientFill(gradientColors, gradientValues);
         }
         return dataset;
-    }
-
-    private boolean isFieldEmpty(String input) {
-        return input == null || input.length() == 0;
-    }
-
-    private boolean isFieldEmpty(int input) {
-        return input == 0;
-    }
-
-    private boolean isFieldEmpty(long input) {
-        return input == 0;
-    }
-
-    private boolean isFieldEmpty(float input) {
-        return input == 0;
-    }
-
-    private boolean isFieldEmpty(double input) {
-        return input == 0;
-    }
-
-    private boolean isFieldEmpty(Controls.PanelCtrl.LayoutType input) {
-        return input == null;
-    }
-
-    private boolean isFieldEmpty(Controls.ImageCtrl.ImageScaleType input) {
-        return input == null || input == Controls.ImageCtrl.ImageScaleType.NONE;
-    }
-
-    private boolean isFieldEmpty(Controls.TextCtrl.GravityType input) {
-        return input == null || input == Controls.TextCtrl.GravityType.NONE;
-    }
-
-    private boolean isFieldEmpty(List input) {
-        return input == null || input.size() == 0;
     }
 }

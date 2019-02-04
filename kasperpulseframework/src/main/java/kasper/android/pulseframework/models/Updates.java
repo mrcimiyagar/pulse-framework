@@ -629,4 +629,24 @@ public class Updates {
             this.value3 = value3;
         }
     }
+
+    public static class SeekBarCtrlUpdateThumbColor extends StringUpdate {
+
+    }
+
+    public static class SeekBarCtrlUpdateThumbSize extends IntUpdate {
+
+    }
+
+    public static class SeekBarCtrlUpdateTrackColor extends StringUpdate {
+
+    }
+
+    public static class SeekBarCtrlUpdateTrackThickness extends IntUpdate {
+
+    }
+
+    public static class SeekBarCtrlUpdateProgress extends IntUpdate {
+
+    }
 }

@@ -5,6 +5,9 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.OvalShape;
+import android.graphics.drawable.shapes.RectShape;
 import android.net.Uri;
 import android.util.Log;
 import android.util.Pair;
@@ -19,6 +22,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RelativeLayout;
+import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -43,6 +47,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import kasper.android.pulseframework.adapters.DropDownAdapter;
 import kasper.android.pulseframework.adapters.RecyclerAdapter;
+import kasper.android.pulseframework.components.CustomSeekBar;
 import kasper.android.pulseframework.interfaces.IMainThreadRunner;
 import kasper.android.pulseframework.locks.Locks;
 import kasper.android.pulseframework.models.Bindings;
@@ -51,6 +56,7 @@ import kasper.android.pulseframework.models.Data;
 import kasper.android.pulseframework.models.Exceptions;
 import kasper.android.pulseframework.models.Tuple;
 import kasper.android.pulseframework.models.Updates;
+import kasper.android.pulseframework.utils.FieldValidator;
 import kasper.android.pulseframework.utils.GraphicsHelper;
 import tcking.github.com.giraffeplayer2.VideoView;
 
@@ -140,20 +146,6 @@ public class UiUpdaterEngine {
         if (valueStr.endsWith(".0"))
             valueStr = valueStr.substring(0, valueStr.length() - 2);
         return Integer.valueOf(valueStr);
-    }
-
-    private long convertDoubleToLong(Object value) {
-        String valueStr = value + "";
-        if (valueStr.endsWith(".0"))
-            valueStr = valueStr.substring(0, valueStr.length() - 2);
-        return Long.valueOf(valueStr);
-    }
-
-    private short convertDoubleToShort(Object value) {
-        String valueStr = value + "";
-        if (valueStr.endsWith(".0"))
-            valueStr = valueStr.substring(0, valueStr.length() - 2);
-        return Short.valueOf(valueStr);
     }
 
     @SuppressLint("RtlHardcoded")
@@ -1144,6 +1136,71 @@ public class UiUpdaterEngine {
                                     , RecyclerView.VERTICAL, false));
                     }
                     Objects.requireNonNull(recyclerView.getAdapter()).notifyDataSetChanged();
+                }
+            } else if (update instanceof Updates.SeekBarCtrlUpdateProgress) {
+                if (control instanceof Controls.SeekBarCtrl) {
+                    ((Controls.SeekBarCtrl) control).setProgress(
+                            ((Updates.SeekBarCtrlUpdateProgress) update).getValue());
+                    view = getOrigin(view);
+                    ((SeekBar) view).setProgress(
+                            ((Updates.SeekBarCtrlUpdateProgress) update).getValue());
+                }
+            } else if (update instanceof Updates.SeekBarCtrlUpdateThumbColor) {
+                if (control instanceof Controls.SeekBarCtrl) {
+                    ((Controls.SeekBarCtrl) control).setThumbColor(
+                            ((Updates.SeekBarCtrlUpdateThumbColor) update).getValue());
+                    view = getOrigin(view);
+                    ((SeekBar) view).getThumb().setColorFilter(Color.parseColor(
+                            ((Updates.SeekBarCtrlUpdateThumbColor) update).getValue())
+                            , PorterDuff.Mode.SRC_ATOP);
+                }
+            } else if (update instanceof Updates.SeekBarCtrlUpdateThumbSize) {
+                if (control instanceof Controls.SeekBarCtrl) {
+                    ((Controls.SeekBarCtrl) control).setThumbSize(
+                            ((Updates.SeekBarCtrlUpdateThumbSize) update).getValue());
+                    view = getOrigin(view);
+                    ShapeDrawable th = new ShapeDrawable(new OvalShape());
+                    th.setIntrinsicWidth(GraphicsHelper.dpToPx(
+                            ((Controls.SeekBarCtrl)control).getThumbSize()));
+                    th.setIntrinsicHeight(GraphicsHelper.dpToPx(
+                            ((Controls.SeekBarCtrl)control).getThumbSize()));
+                    if (!FieldValidator.isFieldEmpty(((Controls.SeekBarCtrl)control).getThumbColor()))
+                        th.setColorFilter(Color.parseColor(((Controls.SeekBarCtrl)control)
+                                .getThumbColor()), PorterDuff.Mode.SRC_OVER);
+                    else
+                        th.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_OVER);
+                    ((SeekBar) view).setThumb(th);
+                }
+            } else if (update instanceof Updates.SeekBarCtrlUpdateTrackColor) {
+                if (control instanceof Controls.SeekBarCtrl) {
+                    ((Controls.SeekBarCtrl) control).setTrackColor(
+                            ((Updates.SeekBarCtrlUpdateTrackColor) update).getValue());
+                    view = getOrigin(view);
+                    ((SeekBar) view).getProgressDrawable().setColorFilter(Color.parseColor(
+                            ((Updates.SeekBarCtrlUpdateTrackColor) update).getValue())
+                            , PorterDuff.Mode.MULTIPLY);
+                    if (((SeekBar) view).getProgressDrawable() instanceof ShapeDrawable)
+                        ((ShapeDrawable) ((SeekBar) view).getProgressDrawable())
+                                .getPaint().setColor(Color.parseColor(
+                                ((Updates.SeekBarCtrlUpdateTrackColor) update).getValue()));
+                }
+            } else if (update instanceof Updates.SeekBarCtrlUpdateTrackThickness) {
+                if (control instanceof Controls.SeekBarCtrl) {
+                    ((Controls.SeekBarCtrl) control).setTrackThickness(
+                            ((Updates.SeekBarCtrlUpdateTrackThickness) update).getValue());
+                    view = getOrigin(view);
+                    ShapeDrawable shapeDrawable = new ShapeDrawable();
+                    shapeDrawable.setShape(new RectShape());
+                    shapeDrawable.setIntrinsicWidth(GraphicsHelper.dpToPx(
+                            control.getWidth()));
+                    shapeDrawable.setIntrinsicHeight(GraphicsHelper.dpToPx(
+                            ((Controls.SeekBarCtrl) control).getTrackThickness()));
+                    ((SeekBar) view).setProgressDrawable(shapeDrawable);
+                    if (!FieldValidator.isFieldEmpty(((Controls.SeekBarCtrl) control).getTrackColor()))
+                        shapeDrawable.getPaint().setColor(Color.parseColor(
+                                ((Controls.SeekBarCtrl) control).getTrackColor()));
+                    else
+                        shapeDrawable.getPaint().setColor(Color.WHITE);
                 }
             }
         }

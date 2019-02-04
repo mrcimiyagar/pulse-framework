@@ -30,7 +30,8 @@ public class Controls {
             @JsonSubTypes.Type(value = CheckCtrl.class, name = "CheckCtrl"),
             @JsonSubTypes.Type(value = OptionCtrl.class, name = "OptionCtrl"),
             @JsonSubTypes.Type(value = DropDownCtrl.class, name = "DropDownCtrl"),
-            @JsonSubTypes.Type(value = RecyclerCtrl.class, name = "RecyclerCtrl")
+            @JsonSubTypes.Type(value = RecyclerCtrl.class, name = "RecyclerCtrl"),
+            @JsonSubTypes.Type(value = SeekBarCtrl.class, name = "SeekBarCtrl")
     })
     public static class Control {
 
@@ -1013,6 +1014,54 @@ public class Controls {
 
         public void setGridSpanCount(int gridSpanCount) {
             this.gridSpanCount = gridSpanCount;
+        }
+    }
+
+    public static class SeekBarCtrl extends Control {
+        private int progress;
+        private String trackColor;
+        private int trackThickness;
+        private String thumbColor;
+        private int thumbSize;
+
+        public int getProgress() {
+            return progress;
+        }
+
+        public void setProgress(int progress) {
+            this.progress = progress;
+        }
+
+        public String getTrackColor() {
+            return trackColor;
+        }
+
+        public void setTrackColor(String trackColor) {
+            this.trackColor = trackColor;
+        }
+
+        public int getTrackThickness() {
+            return trackThickness;
+        }
+
+        public void setTrackThickness(int trackThickness) {
+            this.trackThickness = trackThickness;
+        }
+
+        public String getThumbColor() {
+            return thumbColor;
+        }
+
+        public void setThumbColor(String thumbColor) {
+            this.thumbColor = thumbColor;
+        }
+
+        public int getThumbSize() {
+            return thumbSize;
+        }
+
+        public void setThumbSize(int thumbSize) {
+            this.thumbSize = thumbSize;
         }
     }
 }

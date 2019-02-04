@@ -2,9 +2,11 @@ package kasper.android.pulseframeworkproject;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.SeekBar;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.lang.annotation.ElementType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -397,7 +399,6 @@ public class MainActivity extends AppCompatActivity {
         recyclerCtrl.setWidth(300);
         recyclerCtrl.setHeight(400);
         recyclerCtrl.setMarginTop(56);
-        recyclerCtrl.setMarginBottom(300);
         recyclerCtrl.setX(Controls.Control.CENTER);
         recyclerCtrl.setBackColor(colorDarkDark);
         recyclerCtrl.setCornerRadius(16);
@@ -453,6 +454,19 @@ public class MainActivity extends AppCompatActivity {
         }
         recyclerCtrl.getItems().add(hrc);
 
+        Controls.SeekBarCtrl seekBarCtrl = new Controls.SeekBarCtrl();
+        seekBarCtrl.setWidth(300);
+        seekBarCtrl.setHeight(112);
+        seekBarCtrl.setTrackThickness(16);
+        seekBarCtrl.setThumbSize(28);
+        seekBarCtrl.setThumbColor(colorBlue);
+        seekBarCtrl.setTrackColor(colorBlue);
+        seekBarCtrl.setX(Controls.Control.CENTER);
+        seekBarCtrl.setMarginTop(56);
+        seekBarCtrl.setMarginBottom(300);
+        seekBarCtrl.setProgress(25);
+        containerEl.getControls().add(seekBarCtrl);
+
         PulseView pulseView = findViewById(R.id.pulseView);
         pulseView.setup(this);
 
@@ -463,6 +477,8 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+
+        // -----------------------------------------------------------------------------------------
 
         List<Codes.Code> codes = new ArrayList<>();
 
