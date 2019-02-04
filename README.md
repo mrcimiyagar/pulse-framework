@@ -16,7 +16,7 @@ add jitpack io to project level build.gradle allprojects -> respositories block 
 
 add library dependency to app level build.gradle :
 
-  implementation 'com.github.theprogrammermachine:KasperPulseFramework:v1.0'
+  implementation 'com.github.theprogrammermachine:KasperPulseFramework:v1.8'
 
 ## Sample page built with this utility :
 
